@@ -1,12 +1,21 @@
 import React from 'react'
 import { useFormikContext } from 'formik'
 
-import Button from '../ui/Buttons/Button'
+import ModernButton from '../ui/Buttons/ModernButton'
 
-function SubmitButton({ title, color }) {
-  const { handleSubmit } = useFormikContext()
+function SubmitButton({ title, variant = 'primary', size = 'large', ...props }) {
+  const { handleSubmit, isSubmitting } = useFormikContext()
 
-  return <Button title={title} color={color} onPress={handleSubmit} />
+  return (
+    <ModernButton 
+      title={title} 
+      variant={variant}
+      size={size}
+      loading={isSubmitting}
+      onPress={handleSubmit}
+      {...props}
+    />
+  )
 }
 
 export default SubmitButton

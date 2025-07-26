@@ -1,9 +1,11 @@
 import React from 'react'
-import { View, Text, StyleSheet, ImageBackground, Image } from 'react-native'
+import { View, Text, StyleSheet, Image } from 'react-native'
 import { useNavigation } from 'expo-router'
+import { LinearGradient } from 'expo-linear-gradient'
 
-import { images } from '@/constants'
-import Button from '@/components/ui/Buttons/Button'
+import { images, APP_FULL_NAME, COLORS } from '@/constants'
+import ModernButton from '@/components/ui/Buttons/ModernButton'
+import GradientBackground from '@/components/ui/GradientBackground'
 
 const App = () => {
   const navigation = useNavigation()
@@ -17,22 +19,29 @@ const App = () => {
   }
 
   return (
-    <ImageBackground
-      blurRadius={10}
-      style={styles.background}
-      source={images.screen}
-    >
+    <GradientBackground colors={COLORS.background.primary}>
       <View style={styles.logoContainer}>
         <Image style={styles.logo} source={images.logo} />
+        <Text style={styles.appName}>{APP_FULL_NAME}</Text>
         <Text style={styles.tagline}>
           Drive Your Dreams – Experience the Freedom of the Road!
         </Text>
       </View>
       <View style={styles.buttonsContainer}>
-        <Button title='Login' onPress={handleLoginPress} />
-        <Button title='Register' color='secondary' onPress={handleRegisterPress} />
+        <ModernButton 
+          title='Login' 
+          onPress={handleLoginPress}
+          variant='primary'
+          size='large'
+        />
+        <ModernButton 
+          title='Register' 
+          onPress={handleRegisterPress}
+          variant='outline'
+          size='large'
+        />
       </View>
-    </ImageBackground>
+    </GradientBackground>
   )
 }
 
@@ -49,27 +58,45 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     padding: 20,
     width: '100%',
+    gap: 12,
   },
   logo: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 2,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 3,
     borderColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   logoContainer: {
     position: 'absolute',
-    top: 70,
+    top: 100,
     alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  appName: {
+    color: 'white',
+    fontSize: 24,
+    fontWeight: '800',
+    marginTop: 16,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   tagline: {
     color: 'white',
-    fontSize: 30,
-    fontWeight: '700',
-    paddingVertical: 20,
+    fontSize: 18,
+    fontWeight: '600',
+    paddingVertical: 16,
     textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10,
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+    lineHeight: 24,
   },
 })

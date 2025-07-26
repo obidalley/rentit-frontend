@@ -2,7 +2,7 @@ import React from 'react'
 import { View, TextInput, StyleSheet, Platform } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 
-import defaultStyles from '../config/styles'
+import colors from '../config/colors'
 
 const AppTextInput = ({ icon, width = '100%', ...otherProps }) => {
   return (
@@ -11,13 +11,13 @@ const AppTextInput = ({ icon, width = '100%', ...otherProps }) => {
         <MaterialCommunityIcons
           name={icon}
           size={20}
-          color={defaultStyles.colors.medium}
+          color={colors.medium}
           style={styles.icon}
         />
       )}
       <TextInput
-        placeholderTextColor={defaultStyles.colors.medium}
-        style={[defaultStyles.text, { width: '100%' }]}
+        placeholderTextColor={colors.medium}
+        style={[styles.text, { width: '100%' }]}
         {...otherProps}
       />
     </View>
@@ -26,16 +26,26 @@ const AppTextInput = ({ icon, width = '100%', ...otherProps }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: defaultStyles.colors.light,
-    borderRadius: 8,
+    backgroundColor: colors.light,
+    borderRadius: 12,
     flexDirection: 'row',
-    paddingVertical: Platform.OS === 'web' ? 15 : 4,
+    paddingVertical: Platform.OS === 'web' ? 15 : 12,
     paddingHorizontal: 15,
     marginVertical: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   icon: {
     marginRight: 10,
-    marginVertical: 'auto'
+    marginVertical: 'auto',
+  },
+  text: {
+    color: colors.dark,
+    fontSize: 16,
+    fontFamily: Platform.OS === 'android' ? 'Roboto' : 'System',
   },
 })
 

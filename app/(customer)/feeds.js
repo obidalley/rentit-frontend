@@ -3,7 +3,6 @@ import {
     View,
     SafeAreaView,
     StyleSheet,
-    ImageBackground,
     BackHandler,
     FlatList,
     TextInput,
@@ -12,12 +11,13 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { useNavigation, useFocusEffect } from '@react-navigation/native'
 import { useRouter } from 'expo-router'
 
-import colors from '@/config/colors'
-import { images } from '@/constants'
+import { COLORS } from '@/constants'
 import { useGetCarsQuery } from '@/apis/carsApi'
 
 import ActivityIndicator from '@/components/ActivityIndicator'
 import Card from '@/components/Card'
+import GradientBackground from '@/components/ui/GradientBackground'
+import ModernCard from '@/components/ui/ModernCard'
 
 const Feeds = () => {
     const navigation = useNavigation()
@@ -71,24 +71,24 @@ const Feeds = () => {
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
-            <ImageBackground
-                source={images.screen}
-                blurRadius={30}
-                resizeMode='cover'
-                style={styles.background}>
+            <GradientBackground colors={COLORS.background.light}>
                 <SafeAreaView style={styles.container}>
-                    <View>
-                        <ActivityIndicator visible={isLoading} />
+                    <ModernCard style={styles.searchContainer}>
                         <TextInput
                             style={styles.searchBar}
-                            placeholder='Search by car...'
-                            placeholderTextColor={colors.medium}
+                            placeholder='Search cars by name, make, model...'
+                            placeholderTextColor={COLORS.neutral.medium}
                             value={searchTerm}
                             onChangeText={setSearchTerm}
                         />
+                    </ModernCard>
+                    
+                    <View style={styles.contentContainer}>
+                        <ActivityIndicator visible={isLoading} />
                         <FlatList
                             data={filteredCars}
                             keyExtractor={(item) => item?.id?.toString()}
+                            numColumns={1}
                             renderItem={({ item }) => (
                                 <Card
                                     name={item?.name || ''}
@@ -104,10 +104,11 @@ const Feeds = () => {
                                 />
                             )}
                             contentContainerStyle={styles.flatListContainer}
+                            showsVerticalScrollIndicator={false}
                         />
                     </View>
                 </SafeAreaView>
-            </ImageBackground>
+            </GradientBackground>
         </GestureHandlerRootView>
     )
 }
@@ -120,23 +121,24 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     container: {
-        padding: 10,
+        flex: 1,
+        padding: 16,
+    },
+    searchContainer: {
+        marginBottom: 16,
+        padding: 0,
     },
     searchBar: {
-        backgroundColor: colors.white,
         paddingHorizontal: 15,
-        paddingVertical: 10,
-        borderRadius: 10,
-        marginVertical: 10,
+        paddingVertical: 12,
         fontSize: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
+        color: COLORS.neutral.dark,
+    },
+    contentContainer: {
+        flex: 1,
     },
     flatListContainer: {
-        paddingBottom: 100,
+        paddingBottom: 20,
     },
     detailsContainer: {
         padding: 20,
@@ -146,7 +148,7 @@ const styles = StyleSheet.create({
         height: 300,
     },
     price: {
-        color: colors.secondary,
+        color: COLORS.secondary.solid,
         fontWeight: 'bold',
         fontSize: 20,
         marginVertical: 10,
@@ -154,7 +156,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 24,
         fontWeight: '500',
-        color: 'white',
+        color: COLORS.neutral.dark,
     },
     userContainer: {
         marginVertical: 40,
