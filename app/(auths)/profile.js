@@ -1,7 +1,6 @@
 import React from 'react'
 import {
     StyleSheet,
-    ImageBackground,
     Image,
     Keyboard,
     TouchableWithoutFeedback,
@@ -16,12 +15,14 @@ import { useDispatch } from 'react-redux'
 import { useNavigation } from '@react-navigation/native'
 import { useRoute } from '@react-navigation/native'
 
-import { images } from '@/constants'
+import { images, APP_FULL_NAME, COLORS } from '@/constants'
 import { useAddNewCustomerMutation } from '@/apis/customersApi'
 import { setSpinner } from '@/store/slices/spinnerSlice'
 
 import Screen from '@/components/ui/Screen'
 import { Form, FormField, SubmitButton, Textarea, Datepicker } from '@/components/forms'
+import GradientBackground from '@/components/ui/GradientBackground'
+import ModernCard from '@/components/ui/ModernCard'
 
 const validationSchema = Yup.object().shape({
     firstname: Yup.string().required().label('First name'),
@@ -125,63 +126,68 @@ const Profile = () => {
     }
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <ImageBackground
-                blurRadius={30}
-                style={styles.background}
-                source={images.screen}
-            >
+            <GradientBackground colors={COLORS.background.primary}>
                 <Screen style={styles.container}>
-                    <Image style={styles.logo} source={images.logo} />
-                    <Text style={styles.tagline}>Profile Setup!</Text>
-                    <Form
-                        initialValues={{ firstname: '', surname: '', othername: '', gender: 'male' }}
-                        onSubmit={(values) => handleSubmit(values)}
-                        validationSchema={validationSchema}
-                    >
-                        <FormField
-                            icon='account'
-                            name='firstname'
-                            placeholder='First Name'
-                        />
-                        <FormField
-                            icon='account'
-                            name='surname'
-                            placeholder='Surname'
-                        />
-                        <FormField
-                            icon='account'
-                            name='othername'
-                            placeholder='Other Name'
-                        />
-                        <Datepicker
-                            autoCorrect={false}
-                            icon='account'
-                            name='dob'
-                            placeholder='Date of Birth'
-                        />
-                        <RadioButtonGroup
-                            name="gender"
-                            options={[
-                                { label: 'Male', value: 'Male' },
-                                { label: 'Female', value: 'Female' }
-                            ]}
-                        />
-                        <FormField
-                            keyboardType='numeric'
-                            icon='account'
-                            name='phone'
-                            placeholder='Phone Number'
-                        />
-                        <Textarea
-                            autoCorrect={false}
-                            icon='account'
-                            name='address'
-                            placeholder='Contact address'
-                        />
-                        <SubmitButton title='Save Profile' color='blueDark' />
-                    </Form>
+                    <View style={styles.header}>
+                        <Image style={styles.logo} source={images.logo} />
+                        <Text style={styles.appName}>{APP_FULL_NAME}</Text>
+                        <Text style={styles.tagline}>Complete Your Profile</Text>
+                    </View>
+                    
+                    <ModernCard style={styles.formCard}>
+                        <Form
+                            initialValues={{ firstname: '', surname: '', othername: '', gender: 'Male' }}
+                            onSubmit={(values) => handleSubmit(values)}
+                            validationSchema={validationSchema}
+                        >
+                            <FormField
+                                icon='account'
+                                name='firstname'
+                                placeholder='First Name'
+                            />
+                            <FormField
+                                icon='account'
+                                name='surname'
+                                placeholder='Surname'
+                            />
+                            <FormField
+                                icon='account'
+                                name='othername'
+                                placeholder='Other Name (Optional)'
+                            />
+                            <Datepicker
+                                autoCorrect={false}
+                                icon='calendar'
+                                name='dob'
+                                placeholder='Date of Birth'
+                            />
+                            <View style={styles.genderSection}>
+                                <Text style={styles.sectionLabel}>Gender</Text>
+                                <RadioButtonGroup
+                                    name="gender"
+                                    options={[
+                                        { label: 'Male', value: 'Male' },
+                                        { label: 'Female', value: 'Female' }
+                                    ]}
+                                />
+                            </View>
+                            <FormField
+                                keyboardType='numeric'
+                                icon='phone'
+                                name='phone'
+                                placeholder='Phone Number'
+                            />
+                            <Textarea
+                                autoCorrect={false}
+                                icon='map-marker'
+                                name='address'
+                                placeholder='Contact Address'
+                            />
+                            <SubmitButton title='Complete Profile' />
+                        </Form>
+                    </ModernCard>
                 </Screen>
-            </ImageBackground>
+            </GradientBackground>
         </TouchableWithoutFeedback>
     )
 }
@@ -189,100 +195,89 @@ const Profile = () => {
 export default Profile
 
 const styles = StyleSheet.create({
-    background: {
-        height: '100%',
-        width: '100%',
-    },
     container: {
-        padding: 10,
+        padding: 20,
+        justifyContent: 'center',
+    },
+    header: {
+        alignItems: 'center',
+        marginBottom: 32,
     },
     logo: {
-        width: 80,
-        height: 80,
-        alignSelf: 'center',
-        marginVertical: 50,
+        width: 100,
+        height: 100,
         borderRadius: 50,
-        borderWidth: 2,
+        borderWidth: 3,
         borderColor: 'white',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 8,
+    },
+    appName: {
+        color: 'white',
+        fontSize: 20,
+        fontWeight: '700',
+        marginTop: 12,
+        textAlign: 'center',
+        textShadowColor: 'rgba(0, 0, 0, 0.5)',
+        textShadowOffset: { width: 0, height: 2 },
+        textShadowRadius: 4,
     },
     tagline: {
         color: 'white',
-        marginVertical: 10,
+        marginTop: 8,
         textAlign: 'center',
+        fontSize: 18,
+        fontWeight: '600',
+        textShadowColor: 'rgba(0, 0, 0, 0.5)',
+        textShadowOffset: { width: 0, height: 1 },
+        textShadowRadius: 4,
+    },
+    formCard: {
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(10px)',
+    },
+    genderSection: {
+        marginVertical: 10,
+    },
+    sectionLabel: {
         fontSize: 16,
+        fontWeight: '600',
+        color: '#333',
+        marginBottom: 8,
     },
     radioContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 10,
+        gap: 20,
     },
     radioOption: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginRight: 20,
     },
     radioCircle: {
         height: 20,
         width: 20,
         borderRadius: 10,
         borderWidth: 2,
-        borderColor: 'white',
+        borderColor: COLORS.primary.solid,
         alignItems: 'center',
         justifyContent: 'center',
     },
     radioSelected: {
-        borderColor: 'blue',
+        borderColor: COLORS.primary.solid,
     },
     radioInnerCircle: {
         height: 10,
         width: 10,
         borderRadius: 5,
-        backgroundColor: 'blue',
+        backgroundColor: COLORS.primary.solid,
     },
     radioLabel: {
-        color: 'white',
+        color: '#333',
         marginLeft: 8,
         fontSize: 16,
-    },
-    separatorContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginVertical: 10,
-    },
-    line: {
-        flex: 1,
-        height: 1,
-        backgroundColor: 'white',
-    },
-    orText: {
-        marginHorizontal: 10,
-        color: 'white',
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    linkContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginVertical: 10,
-    },
-    link: {
-        color: '#333',
-        fontSize: 16,
-        fontWeight: '600',
-        textDecorationLine: 'underline',
-    },
-    buttonText: {
-        color: '#333',
-        fontSize: 14,
-        fontWeight: 'bold',
-        textAlign: 'center',
-    },
-    button: {
-        height: 40,
-        width: '100%',
-        borderRadius: 5,
-        backgroundColor: 'rgba(255, 255, 255, 0.6)',
-        justifyContent: 'center',
     },
 })

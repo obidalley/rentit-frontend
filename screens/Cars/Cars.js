@@ -15,6 +15,10 @@ import { useDispatch } from 'react-redux'
 
 import { useGetCarsQuery, useDeleteCarMutation, useUpdateCarMutation } from '@/apis/carsApi'
 import { setSpinner } from '@/store/slices/spinnerSlice'
+import { COLORS } from '@/constants'
+import ModernCard from '@/components/ui/ModernCard'
+import StatusBadge from '@/components/ui/StatusBadge'
+import ModernButton from '@/components/ui/Buttons/ModernButton'
 
 const Cars = ({ changeMode, onSelectCar, selectedCar }) => {
     const dispatch = useDispatch()
@@ -143,31 +147,26 @@ const Cars = ({ changeMode, onSelectCar, selectedCar }) => {
     }
 
     const renderCarItem = ({ item }) => (
-        <View style={styles.itemContainer}>
+        <ModernCard style={styles.itemContainer}>
             <View style={styles.itemDetails}>
                 <Text style={styles.itemText}>
-                    <Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>Name:</Text> {item.name}
+                    <Text style={styles.itemLabel}>Name:</Text> {item.name}
                 </Text>
                 <Text style={styles.itemText}>
-                    <Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>Make:</Text> {item.make}
+                    <Text style={styles.itemLabel}>Make:</Text> {item.make}
                 </Text>
                 <Text style={styles.itemText}>
-                    <Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>Model:</Text> {item.model}
+                    <Text style={styles.itemLabel}>Model:</Text> {item.model}
                 </Text>
                 <Text style={styles.itemText}>
-                    <Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>Price Per Day:</Text> ₦{formatPrice(item.priceperday)}
+                    <Text style={styles.itemLabel}>Price Per Day:</Text> ₦{formatPrice(item.priceperday)}
                 </Text>
-                <Text style={styles.itemText}>
-                    <Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>Availability:</Text>
-                </Text>
-                <View
-                    style={[
-                        styles.availabilityTag,
-                        item.availability ? styles.available : styles.unavailable
-                    ]}>
-                    <Text style={styles.availabilityText}>
-                        {item.availability ? 'Available' : 'Unavailable'}
-                    </Text>
+                <View style={styles.availabilityContainer}>
+                    <Text style={styles.itemLabel}>Status:</Text>
+                    <StatusBadge 
+                        status={item.availability ? 'Available' : 'Unavailable'} 
+                        size="small"
+                    />
                 </View>
             </View>
             <TouchableOpacity
@@ -175,27 +174,29 @@ const Cars = ({ changeMode, onSelectCar, selectedCar }) => {
                 onPress={() => handleMenuToggle(item)}>
                 <Text style={styles.ellipsisText}>⋮</Text>
             </TouchableOpacity>
-        </View>
+        </ModernCard>
     )
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={() => changeMode('New')}>
-                    <Text style={styles.addButtonText}>Add</Text>
-                </TouchableOpacity>
+                <ModernButton
+                    title="Add Car"
+                    onPress={() => changeMode('New')}
+                    size="small"
+                />
             </View>
-            <TextInput
-                style={styles.searchInput}
-                placeholder='Search Cars...'
-                placeholderTextColor='#ccc'
-                value={searchTerm}
-                onChangeText={setSearchTerm}
-            />
+            <ModernCard style={styles.searchContainer}>
+                <TextInput
+                    style={styles.searchInput}
+                    placeholder='Search Cars...'
+                    placeholderTextColor={COLORS.neutral.medium}
+                    value={searchTerm}
+                    onChangeText={setSearchTerm}
+                />
+            </ModernCard>
             {isLoading ? (
-                <ActivityIndicator size='large' color='#fff' />
+                <ActivityIndicator size='large' color={COLORS.primary.solid} />
             ) : (
                 filteredCars.length > 0 ? (
                     <FlatList
@@ -203,13 +204,13 @@ const Cars = ({ changeMode, onSelectCar, selectedCar }) => {
                         keyExtractor={(item) => item.id.toString()}
                         renderItem={renderCarItem}
                         contentContainerStyle={styles.listContainer}
+                        showsVerticalScrollIndicator={false}
                     />
                 ) : (
-                    <View style={styles.msg}>
-                        <Text style={{ color: 'white', fontSize: 14, textAlign: 'center' }}>No Record Available</Text>
-                    </View>
+                    <ModernCard style={styles.emptyState}>
+                        <Text style={styles.emptyText}>No cars available</Text>
+                    </ModernCard>
                 )
-
             )}
 
             <Modal
@@ -220,7 +221,7 @@ const Cars = ({ changeMode, onSelectCar, selectedCar }) => {
                 <TouchableOpacity
                     style={styles.modalOverlay}
                     onPress={handleMenuClose}>
-                    <View style={styles.menu}>
+                    <ModernCard style={styles.menu}>
                         <TouchableOpacity style={styles.menuItem} onPress={handleView}>
                             <Text style={styles.menuItemText}>View</Text>
                         </TouchableOpacity>
@@ -237,7 +238,7 @@ const Cars = ({ changeMode, onSelectCar, selectedCar }) => {
                                 {selectedCar?.availability ? 'Make Unavailable' : 'Make Available'}
                             </Text>
                         </TouchableOpacity>
-                    </View>
+                    </ModernCard>
                 </TouchableOpacity>
             </Modal>
         </SafeAreaView>
@@ -257,65 +258,57 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 10,
     },
-    title: {
-        fontSize: 24,
-        fontWeight: '500',
-        color: 'white',
-    },
-    addButton: {
-        backgroundColor: '#007AFF',
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 5,
-    },
-    addButtonText: {
-        color: 'white',
-        fontSize: 16,
-    },
-    msg: {
-        backgroundColor: 'rgba(255,255,255,0.5)',
-        padding: 10,
-        borderRadius: 5,
-        borderColor: 'white',
-        borderWidth: 0.5,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 10,
+    searchContainer: {
+        marginBottom: 16,
+        padding: 0,
     },
     searchInput: {
-        backgroundColor: 'rgba(255,255,255,0.2)',
-        padding: 10,
-        borderRadius: 5,
-        color: 'white',
-        marginBottom: 10,
+        paddingHorizontal: 15,
+        paddingVertical: 12,
+        fontSize: 16,
+        color: COLORS.neutral.dark,
+    },
+    emptyState: {
+        alignItems: 'center',
+        paddingVertical: 40,
+    },
+    emptyText: {
+        fontSize: 16,
+        color: COLORS.neutral.medium,
+        textAlign: 'center',
     },
     listContainer: {
         paddingBottom: 20,
     },
     itemContainer: {
-        backgroundColor: 'rgba(255,255,255,0.5)',
-        padding: 10,
-        borderRadius: 5,
-        borderColor: 'white',
-        borderWidth: 0.5,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 10,
+        marginBottom: 12,
     },
     itemDetails: {
         flex: 1,
     },
     itemText: {
-        color: 'black',
+        color: COLORS.neutral.dark,
         fontSize: 14,
+        marginBottom: 4,
+    },
+    itemLabel: {
+        fontWeight: 'bold',
+        fontStyle: 'italic',
+    },
+    availabilityContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        marginTop: 4,
     },
     ellipsisButton: {
         padding: 10,
     },
     ellipsisText: {
-        color: 'white',
+        color: COLORS.neutral.medium,
         fontSize: 24,
     },
     modalOverlay: {
@@ -325,34 +318,18 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     menu: {
-        backgroundColor: 'white',
-        borderRadius: 5,
-        padding: 10,
         width: 200,
+        padding: 0,
     },
     menuItem: {
-        paddingVertical: 10,
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: COLORS.neutral.light,
     },
     menuItemText: {
         fontSize: 16,
-        color: 'black',
-    },
-    availabilityTag: {
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 4,
-        alignSelf: 'flex-start',
-        marginTop: 5,
-    },
-    available: {
-        backgroundColor: 'green',
-    },
-    unavailable: {
-        backgroundColor: 'red',
-    },
-    availabilityText: {
-        color: 'white',
-        fontSize: 12,
-        fontWeight: 'bold',
+        color: COLORS.neutral.dark,
+        fontWeight: '500',
     },
 })

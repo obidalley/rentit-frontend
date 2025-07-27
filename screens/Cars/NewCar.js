@@ -13,9 +13,12 @@ import { useDispatch } from 'react-redux'
 
 import { useAddNewCarMutation } from '@/apis/carsApi'
 import { setSpinner } from '@/store/slices/spinnerSlice'
+import { COLORS } from '@/constants'
 
 import { Form, FormField, SubmitButton } from '@/components/forms'
 import FormImagePicker from '@/components/forms/FormImagePicker'
+import ModernCard from '@/components/ui/ModernCard'
+import ModernButton from '@/components/ui/Buttons/ModernButton'
 
 const validationSchema = Yup.object().shape({
     name: Yup.string().required().label('Name'),
@@ -86,37 +89,63 @@ const NewCar = ({ changeMode }) => {
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView>
-                <View style={styles.header}>
-                    <Text style={styles.tagline}>Add a New Car!</Text>
-                    <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => changeMode('View')}>
-                        <Text style={styles.buttonText}>Back</Text>
-                    </TouchableOpacity>
-                </View>
-                <Form
-                    initialValues={{
-                        name: '',
-                        make: '',
-                        model: '',
-                        priceperday: '',
-                        images: [],
-                    }}
-                    onSubmit={handleSubmit}
-                    validationSchema={validationSchema}
-                >
-                    <FormImagePicker name="images" />
-                    <FormField maxLength={255} name='name' placeholder='Car name' />
-                    <FormField maxLength={255} name='make' placeholder='Car make' />
-                    <FormField maxLength={255} name='model' placeholder='Car model' />
-                    <FormField
-                        keyboardType='numeric'
-                        maxLength={8}
-                        name='priceperday'
-                        placeholder='Price'
-                    />
-                    <SubmitButton title='Save' color='blueDark' />
-                </Form></ScrollView>
+                <ModernCard style={styles.headerCard}>
+                    <View style={styles.header}>
+                        <Text style={styles.title}>Add New Car</Text>
+                        <ModernButton
+                            title="Back"
+                            onPress={() => changeMode('View')}
+                            variant="outline"
+                            size="small"
+                        />
+                    </View>
+                </ModernCard>
+                
+                <ModernCard style={styles.formCard}>
+                    <Form
+                        initialValues={{
+                            name: '',
+                            make: '',
+                            model: '',
+                            priceperday: '',
+                            images: [],
+                        }}
+                        onSubmit={handleSubmit}
+                        validationSchema={validationSchema}
+                    >
+                        <Text style={styles.sectionTitle}>Car Images</Text>
+                        <FormImagePicker name="images" />
+                        
+                        <Text style={styles.sectionTitle}>Car Details</Text>
+                        <FormField 
+                            maxLength={255} 
+                            name='name' 
+                            placeholder='Car Name'
+                            icon='car'
+                        />
+                        <FormField 
+                            maxLength={255} 
+                            name='make' 
+                            placeholder='Car Make (e.g., Toyota, Honda)'
+                            icon='factory'
+                        />
+                        <FormField 
+                            maxLength={255} 
+                            name='model' 
+                            placeholder='Car Model (e.g., Camry, Civic)'
+                            icon='car-side'
+                        />
+                        <FormField
+                            keyboardType='numeric'
+                            maxLength={8}
+                            name='priceperday'
+                            placeholder='Price per Day (₦)'
+                            icon='currency-ngn'
+                        />
+                        <SubmitButton title='Add Car' />
+                    </Form>
+                </ModernCard>
+            </ScrollView>
         </SafeAreaView>
     )
 }
@@ -128,32 +157,34 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 10,
     },
-    title: {
-        color: 'white',
-        fontSize: 14,
-    },
-    tagline: {
-        color: 'white',
-        marginVertical: 10,
-        textAlign: 'center',
-        fontSize: 16,
+    headerCard: {
+        marginBottom: 16,
     },
     header: {
-        display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        borderBottomColor: 'white',
-        borderBottomWidth: 1,
-        paddingBottom: 10,
+        alignItems: 'center',
     },
-    button: {
-        backgroundColor: 'red',
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 5,
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: COLORS.neutral.dark,
     },
-    buttonText: {
-        color: 'white',
+    formCard: {
+        padding: 20,
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: COLORS.neutral.dark,
+        marginBottom: 12,
+        marginTop: 16,
+    },
+    sectionTitle: {
         fontSize: 16,
+        fontWeight: '600',
+        color: COLORS.neutral.dark,
+        marginBottom: 8,
+        marginTop: 12,
     },
 })

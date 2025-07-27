@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import {
     StyleSheet,
-    ImageBackground,
 } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
-import { images } from '@/constants'
+import { COLORS } from '@/constants'
 
+import GradientBackground from '@/components/ui/GradientBackground'
 import Cars from './Cars'
 import NewCar from './NewCar'
 import Car from './Car'
@@ -17,11 +17,7 @@ const CarsListing = () => {
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
-            <ImageBackground
-                source={images.screen}
-                blurRadius={30}
-                resizeMode='cover'
-                style={styles.background}>
+            <GradientBackground colors={COLORS.background.primary}>
                 {mode === 'View' && (
                     <Cars
                         selectedCar={selectedCar}
@@ -32,7 +28,7 @@ const CarsListing = () => {
                 {mode === 'New' && <NewCar changeMode={(mode) => setMode(mode)} />}
                 {mode === 'Details' && <Car car={selectedCar} onBack={(mode) => setMode(mode)} />}
                 {mode === 'Edit' && <EditCar selectedCar={selectedCar} changeMode={(mode) => setMode(mode)} />}
-            </ImageBackground>
+            </GradientBackground>
         </GestureHandlerRootView>
     )
 }
@@ -40,9 +36,6 @@ const CarsListing = () => {
 export default CarsListing
 
 const styles = StyleSheet.create({
-    background: {
-        flex: 1,
-    },
     container: {
         flex: 1,
         padding: 10,

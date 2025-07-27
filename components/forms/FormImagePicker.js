@@ -1,7 +1,10 @@
 import React from 'react'
-import { Image, View, StyleSheet, TouchableOpacity, Alert, Text } from 'react-native'
+import { Image, View, StyleSheet, TouchableOpacity, Alert, Text, ScrollView } from 'react-native'
 import { useFormikContext } from 'formik'
 import * as ImagePicker from 'expo-image-picker'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { COLORS } from '@/constants'
+import ModernButton from '@/components/ui/Buttons/ModernButton'
 
 const FormImagePicker = ({ name }) => {
     const { setFieldValue, values } = useFormikContext()
@@ -42,70 +45,98 @@ const FormImagePicker = ({ name }) => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={pickImages} style={styles.button}>
-                    <Text style={styles.buttonText}>Select Image</Text>
-                </TouchableOpacity>
-            </View>
-            <View style={styles.imageContainer}>
-                {values[name]?.map((uri, index) => (
-                    <TouchableOpacity key={index} onPress={() => removeImage(uri)}>
-                        <Image source={{ uri }} style={styles.image} />
-                    </TouchableOpacity>
-                ))}
-            </View>
+            <ModernButton
+                title="Select Images"
+                onPress={pickImages}
+                variant="outline"
+                size="medium"
+            />
+            
+            {values[name]?.length > 0 && (
+                <ScrollView 
+                    horizontal 
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.imageScrollView}
+                    contentContainerStyle={styles.imageContainer}
+                >
+                    {values[name]?.map((uri, index) => (
+                        <View key={index} style={styles.imageWrapper}>
+                            <Image source={{ uri }} style={styles.image} />
+                            <TouchableOpacity 
+                                style={styles.removeButton}
+                                onPress={() => removeImage(uri)}
+                            >
+                                <MaterialCommunityIcons 
+                                    name="close-circle" 
+                                    size={24} 
+                                    color={COLORS.error.solid} 
+                                />
+                            </TouchableOpacity>
+                        </View>
+                    ))}
+                </ScrollView>
+            )}
+            
+            {values[name]?.length === 0 && (
+                <View style={styles.emptyState}>
+                    <MaterialCommunityIcons 
+                        name="image-plus" 
+                        size={48} 
+                        color={COLORS.neutral.medium} 
+                    />
+                    <Text style={styles.emptyText}>No images selected</Text>
+                </View>
+            )}
         </View>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%',
         marginVertical: 10,
-        alignItems: 'center',
     },
-    header: {
-        height: 40,
-        width: '100%'
+    imageScrollView: {
+        marginTop: 16,
     },
     imageContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        gap: 2,
-        marginTop: 10,
-        justifyContent: 'flex-start',
+        paddingRight: 16,
+    },
+    imageWrapper: {
+        position: 'relative',
+        marginRight: 12,
     },
     image: {
-        width: 100,
-        height: 100,
-        margin: 5,
-        borderRadius: 10,
+        width: 120,
+        height: 120,
+        borderRadius: 12,
+        backgroundColor: COLORS.neutral.light,
     },
-    button: {
-        flex: 1,
-        justifyContent: 'center',
+    removeButton: {
+        position: 'absolute',
+        top: -8,
+        right: -8,
+        backgroundColor: 'white',
+        borderRadius: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 4,
+    },
+    emptyState: {
         alignItems: 'center',
-        backgroundColor: 'blue',
-        color: 'white',
-        borderRadius: 10,
-        marginRight: 10,
+        paddingVertical: 40,
+        borderWidth: 2,
+        borderColor: COLORS.neutral.light,
+        borderStyle: 'dashed',
+        borderRadius: 12,
+        marginTop: 16,
     },
-    buttonText: {
-        color: 'white',
-        fontWeight: 'bold'
-    },
-    addButton: {
-        width: 100,
-        height: 100,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f0f0f0',
-        borderRadius: 10,
-        marginRight: 10,
-        marginBottom: 10,
+    emptyText: {
+        marginTop: 8,
+        fontSize: 14,
+        color: COLORS.neutral.medium,
+        textAlign: 'center',
     },
 })
 

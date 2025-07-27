@@ -4,22 +4,23 @@ import {
   BackHandler,
   Text,
   StyleSheet,
-  ImageBackground,
   Dimensions,
   ScrollView,
   FlatList,
 } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { useNavigation, useFocusEffect } from '@react-navigation/native'
-import { Card } from 'react-native-paper'
 import { LineChart } from 'react-native-chart-kit'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 
-import { images } from '@/constants'
+import { APP_FULL_NAME, COLORS } from '@/constants'
 import { useGetPaymentsQuery } from '@/apis/paymentsApi'
 import { useGetRentsQuery } from '@/apis/rentApi'
 import { useGetCarsQuery } from '@/apis/carsApi'
+import GradientBackground from '@/components/ui/GradientBackground'
+import ModernCard from '@/components/ui/ModernCard'
+import StatusBadge from '@/components/ui/StatusBadge'
 
 dayjs.extend(relativeTime)
 
@@ -99,93 +100,99 @@ const Dashboard = () => {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ImageBackground
-        source={images.screen}
-        blurRadius={80}
-        resizeMode="cover"
-        style={styles.background}
-      >
+      <GradientBackground colors={COLORS.background.light}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Text style={styles.subHeader}>Stats</Text>
+          <View style={styles.header}>
+            <Text style={styles.welcomeText}>Welcome to</Text>
+            <Text style={styles.appTitle}>{APP_FULL_NAME}</Text>
+            <Text style={styles.subtitle}>Admin Dashboard</Text>
+          </View>
+          
+          <Text style={styles.subHeader}>Overview</Text>
 
           <View style={styles.statsContainer}>
-            <Card style={styles.card}>
-              <Card.Content>
+            <ModernCard gradient gradientColors={COLORS.primary.start ? [COLORS.primary.start, COLORS.primary.end] : [COLORS.primary.solid, COLORS.primary.solid]} style={styles.statCard}>
+              <View style={styles.statContent}>
                 <Text style={styles.statTitle}>Total Rents</Text>
                 <Text style={styles.statValue}>{rents?.length || 0}</Text>
-              </Card.Content>
-            </Card>
+              </View>
+            </ModernCard>
 
-            <Card style={styles.card}>
-              <Card.Content>
+            <ModernCard gradient gradientColors={COLORS.secondary.start ? [COLORS.secondary.start, COLORS.secondary.end] : [COLORS.secondary.solid, COLORS.secondary.solid]} style={styles.statCard}>
+              <View style={styles.statContent}>
                 <Text style={styles.statTitle}>Active Rents</Text>
                 <Text style={styles.statValue}>{activeRents?.length || 0}</Text>
-              </Card.Content>
-            </Card>
+              </View>
+            </ModernCard>
 
-            <Card style={styles.card}>
-              <Card.Content>
+            <ModernCard gradient gradientColors={COLORS.accent.start ? [COLORS.accent.start, COLORS.accent.end] : [COLORS.accent.solid, COLORS.accent.solid]} style={styles.statCard}>
+              <View style={styles.statContent}>
                 <Text style={styles.statTitle}>Revenue</Text>
                 <Text style={styles.statValue}>₦{formatPrice(totalAmount)}</Text>
-              </Card.Content>
-            </Card>
+              </View>
+            </ModernCard>
 
-            <Card style={styles.card}>
-              <Card.Content>
+            <ModernCard gradient gradientColors={COLORS.success.start ? [COLORS.success.start, COLORS.success.end] : [COLORS.success.solid, COLORS.success.solid]} style={styles.statCard}>
+              <View style={styles.statContent}>
                 <Text style={styles.statTitle}>Total Cars</Text>
                 <Text style={styles.statValue}>{cars?.length || 0}</Text>
-              </Card.Content>
-            </Card>
+              </View>
+            </ModernCard>
           </View>
 
           <View style={styles.sectionSeparator} />
 
           <Text style={styles.subHeader}>Rental Trends</Text>
-          <LineChart
-            data={{
-              labels: ['Ja', 'Fe', 'Ma', 'Ap', 'My', 'Ju', 'Jl', 'Au', 'Se', 'Oc', 'No', 'Dc'],
-              datasets: [
-                {
-                  data: monthlyData,
+          <ModernCard style={styles.chartCard}>
+            <LineChart
+              data={{
+                labels: ['Ja', 'Fe', 'Ma', 'Ap', 'My', 'Ju', 'Jl', 'Au', 'Se', 'Oc', 'No', 'Dc'],
+                datasets: [
+                  {
+                    data: monthlyData,
+                    color: (opacity = 1) => COLORS.primary.solid,
+                    strokeWidth: 3,
+                  },
+                ],
+              }}
+              width={screenWidth - 64}
+              height={220}
+              chartConfig={{
+                backgroundColor: 'transparent',
+                backgroundGradientFrom: COLORS.primary.start || COLORS.primary.solid,
+                backgroundGradientTo: COLORS.primary.end || COLORS.primary.solid,
+                decimalPlaces: 0,
+                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                style: {
+                  borderRadius: 16,
                 },
-              ],
-            }}
-            width={screenWidth - 32}
-            height={220}
-            chartConfig={{
-              backgroundColor: '#e26a00',
-              backgroundGradientFrom: '#fb8c00',
-              backgroundGradientTo: '#ffa726',
-              decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              style: {
-                borderRadius: 16,
-              },
-            }}
-            style={{
-              marginVertical: 8,
-              borderRadius: 16,
-              alignSelf: 'center',
-            }}
-          />
+                propsForDots: {
+                  r: "6",
+                  strokeWidth: "2",
+                  stroke: "#ffffff"
+                }
+              }}
+              style={styles.chart}
+            />
+          </ModernCard>
 
           <View style={styles.sectionSeparator} />
 
           <Text style={styles.subHeader}>Recent Bookings</Text>
 
-          <View style={styles.bookingList}>
+          <ModernCard style={styles.bookingList}>
             <FlatList
               data={formattedRents}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <View style={styles.bookingItem}>
                   <Text style={styles.bookingText}>{item.bookingcode}</Text>
-                  <Text style={styles.bookingSubText}><Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>By: </Text>{item.user}</Text>
+                  <Text style={styles.bookingSubText}>
+                    <Text style={styles.bookingLabel}>By: </Text>{item.user}
+                  </Text>
                   <View style={styles.bookingRow}>
                     <Text style={styles.dateText}>{dayjs(item.date).fromNow()}</Text>
-                    <View style={[styles.statusTag, getStatusStyle(item.status)]}>
-                      <Text style={styles.statusText}>{item.status}</Text>
-                    </View>
+                    <StatusBadge status={item.status} size="small" />
                   </View>
                 </View>
               )}
@@ -194,9 +201,9 @@ const Dashboard = () => {
               scrollEnabled={false}
               contentContainerStyle={{ paddingBottom: 16 }}
             />
-          </View>
+          </ModernCard>
         </ScrollView>
-      </ImageBackground>
+      </GradientBackground>
     </GestureHandlerRootView>
   )
 }
@@ -204,56 +211,75 @@ const Dashboard = () => {
 export default Dashboard
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    width: '100%',
-  },
   scrollContent: {
     padding: 16,
     paddingBottom: 16,
   },
   header: {
-    fontSize: 26,
+    alignItems: 'center',
+    marginBottom: 24,
+    paddingVertical: 20,
+  },
+  welcomeText: {
+    fontSize: 16,
+    color: COLORS.neutral.medium,
+    fontWeight: '500',
+  },
+  appTitle: {
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
+    color: COLORS.primary.solid,
+    marginTop: 4,
     textAlign: 'center',
-    color: 'white',
+  },
+  subtitle: {
+    fontSize: 18,
+    color: COLORS.neutral.medium,
+    marginTop: 4,
+    fontWeight: '600',
   },
   statsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    gap: 12,
   },
-  card: {
+  statCard: {
     width: '48%',
-    marginBottom: 16,
-    elevation: 4,
-    backgroundColor: '#fff',
+  },
+  statContent: {
+    alignItems: 'center',
   },
   statTitle: {
     fontSize: 16,
-    color: '#555',
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontWeight: '500',
+    marginBottom: 8,
   },
   statValue: {
-    fontSize: 22,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginTop: 4,
+    color: 'white',
   },
   subHeader: {
     fontSize: 20,
     fontWeight: '600',
     marginVertical: 12,
-    color: 'white',
+    color: COLORS.neutral.dark,
+  },
+  chartCard: {
+    padding: 0,
+    overflow: 'hidden',
+  },
+  chart: {
+    borderRadius: 16,
   },
   sectionSeparator: {
     height: 1,
-    backgroundColor: 'white'
+    backgroundColor: COLORS.neutral.light,
+    marginVertical: 16,
   },
   bookingList: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 8,
-    elevation: 2,
     marginBottom: 16,
   },
   bookingItem: {
@@ -262,11 +288,16 @@ const styles = StyleSheet.create({
   bookingText: {
     fontSize: 16,
     fontWeight: '500',
+    color: COLORS.neutral.dark,
   },
   bookingSubText: {
     fontSize: 14,
-    color: '#777',
+    color: COLORS.neutral.medium,
     marginTop: 2,
+  },
+  bookingLabel: {
+    fontWeight: 'bold',
+    fontStyle: 'italic',
   },
   bookingRow: {
     flexDirection: 'row',
@@ -274,23 +305,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 4,
   },
-  statusTag: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  statusText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
   dateText: {
     fontSize: 12,
-    color: '#777',
+    color: COLORS.neutral.medium,
   },
   itemSeparator: {
     height: 1,
-    backgroundColor: '#eee',
+    backgroundColor: COLORS.neutral.light,
     marginVertical: 4,
   },
 })
