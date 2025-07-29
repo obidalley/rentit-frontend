@@ -10,16 +10,13 @@ import {
     TouchableWithoutFeedback,
     Alert,
 } from 'react-native'
+import { Divider } from 'react-native-paper'
 import { useRouter } from 'expo-router'
 
-import { BASE_URL, COLORS } from '@/constants'
+import { BASE_URL } from '@/constants'
 import { useUpdateCarMutation } from '@/apis/carsApi'
 
 import Rating from '@/components/Rating'
-import GradientBackground from '@/components/ui/GradientBackground'
-import ModernCard from '@/components/ui/ModernCard'
-import ModernButton from '@/components/ui/Buttons/ModernButton'
-import StatusBadge from '@/components/ui/StatusBadge'
 
 const Car = ({ car, onBack, onBook }) => {
     const router = useRouter()
@@ -98,163 +95,107 @@ const Car = ({ car, onBack, onBook }) => {
     }
 
     return (
-        <GradientBackground colors={COLORS.background.light}>
-            <View style={styles.container}>
-                {/* Header with Back button */}
-                {onBack && (
-                    <ModernCard style={styles.headerCard}>
-                        <View style={styles.header}>
-                            <Text style={styles.headerTitle}>Car Details</Text>
-                            <ModernButton
-                                title="Back"
-                                onPress={() => onBack('View')}
-                                variant="outline"
-                                size="small"
-                            />
-                        </View>
-                    </ModernCard>
-                )}
+        <View style={styles.container}>
+            {/* Header with Back button */}
+            {onBack && <View style={styles.header}>
+                <TouchableOpacity style={styles.backButton} onPress={() => onBack('View')}>
+                    <Text style={styles.backButtonText}>Back</Text>
+                </TouchableOpacity>
+            }
+            </View>}
 
-                <ScrollView 
-                    contentContainerStyle={styles.contentContainer}
-                    showsVerticalScrollIndicator={false}
-                >
-                    {/* Car Details Card */}
-                    <ModernCard style={styles.detailsCard}>
-                        <Text style={styles.sectionTitle}>Vehicle Information</Text>
-                        
-                        <View style={styles.detailsRow}>
-                            <Text style={styles.label}>Name</Text>
-                            <Text style={styles.value}>{localCar?.name}</Text>
-                        </View>
-                        
-                        <View style={styles.detailsRow}>
-                            <Text style={styles.label}>Make</Text>
-                            <Text style={styles.value}>{localCar?.make}</Text>
-                        </View>
-                        
-                        <View style={styles.detailsRow}>
-                            <Text style={styles.label}>Model</Text>
-                            <Text style={styles.value}>{localCar?.model}</Text>
-                        </View>
-                        
-                        <View style={styles.detailsRow}>
-                            <Text style={styles.label}>Price Per Day</Text>
-                            <Text style={styles.priceValue}>₦{formattedPrice}</Text>
-                        </View>
-                        
-                        <View style={styles.detailsRow}>
-                            <Text style={styles.label}>Availability</Text>
-                            <StatusBadge 
-                                status={localCar?.availability ? 'Available' : 'Unavailable'} 
-                                size="small"
-                            />
-                        </View>
-                    </ModernCard>
+            <ScrollView contentContainerStyle={styles.contentContainer}>
+                {/* Car Details */}
+                <View style={styles.detailsRow}>
+                    <Text style={styles.label}>Name:</Text>
+                    <Text style={styles.value}>{localCar?.name}</Text>
+                </View>
+                <Divider style={styles.divider} />
+                <View style={styles.detailsRow}>
+                    <Text style={styles.label}>Make:</Text>
+                    <Text style={styles.value}>{localCar?.make}</Text>
+                </View>
+                <Divider style={styles.divider} />
+                <View style={styles.detailsRow}>
+                    <Text style={styles.label}>Model:</Text>
+                    <Text style={styles.value}>{localCar?.model}</Text>
+                </View>
+                <Divider style={styles.divider} />
+                <View style={styles.detailsRow}>
+                    <Text style={styles.label}>Price Per Day:</Text>
+                    <Text style={styles.value}>₦{formattedPrice}</Text>
+                </View>
+                <Divider style={styles.divider} />
+                <View style={styles.detailsRow}>
+                    <Text style={styles.label}>Availability:</Text>
+                    <Text style={[styles.value, localCar?.availability ? styles.available : styles.unavailable]}>
+                        {localCar?.availability ? 'Available' : 'Unavailable'}
+                    </Text>
+                </View>
+                <Divider style={styles.divider} />
+                <View style={styles.detailsRow}>
+                    <Text style={styles.label}>Rating:</Text>
+                    <Rating rating={localCar?.rating} size={40} onRatingChange={handleRatingChange} />
+                </View>
+                <Divider style={styles.divider} />
+                <View style={styles.reactionsContainer}>
+                    <Text style={styles.label}>Reactions:</Text>
+                    <View style={styles.reactionsRow}>
+                        <TouchableOpacity onPress={() => handleReactionChange('like')}>
+                            <Text style={styles.reaction}>👍 {localCar?.reactions?.like}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => handleReactionChange('dislike')}>
+                            <Text style={styles.reaction}>👎 {localCar?.reactions?.dislike}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => handleReactionChange('wow')}>
+                            <Text style={styles.reaction}>😮 {localCar?.reactions?.wow}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => handleReactionChange('love')}>
+                            <Text style={styles.reaction}>❤️ {localCar?.reactions?.love}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => handleReactionChange('sad')}>
+                            <Text style={styles.reaction}>😢 {localCar?.reactions?.sad}</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                <Divider style={styles.divider} />
 
-                    {/* Rating Card */}
-                    <ModernCard style={styles.ratingCard}>
-                        <Text style={styles.sectionTitle}>Rating & Reviews</Text>
-                        <View style={styles.ratingContainer}>
-                            <Text style={styles.label}>Your Rating</Text>
-                            <Rating rating={localCar?.rating} size={40} onRatingChange={handleRatingChange} />
-                        </View>
-                        
-                        <View style={styles.reactionsContainer}>
-                            <Text style={styles.label}>Reactions</Text>
-                            <View style={styles.reactionsRow}>
-                                <TouchableOpacity 
-                                    style={styles.reactionButton}
-                                    onPress={() => handleReactionChange('like')}
-                                >
-                                    <Text style={styles.reaction}>👍</Text>
-                                    <Text style={styles.reactionCount}>{localCar?.reactions?.like || 0}</Text>
+                {/* Image Gallery */}
+                <View style={styles.galleryContainer}>
+                    <Text style={styles.galleryTitle}>Gallery</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        {localCar?.images.map((img, index) => {
+                            const imageUrl = `${BASE_URL}/images/uploads/${img}`
+                            return (
+                                <TouchableOpacity key={index} onPress={() => handleImagePress(imageUrl)}>
+                                    <Image source={{ uri: imageUrl }} style={styles.galleryImage} />
                                 </TouchableOpacity>
-                                <TouchableOpacity 
-                                    style={styles.reactionButton}
-                                    onPress={() => handleReactionChange('dislike')}
-                                >
-                                    <Text style={styles.reaction}>👎</Text>
-                                    <Text style={styles.reactionCount}>{localCar?.reactions?.dislike || 0}</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity 
-                                    style={styles.reactionButton}
-                                    onPress={() => handleReactionChange('wow')}
-                                >
-                                    <Text style={styles.reaction}>😮</Text>
-                                    <Text style={styles.reactionCount}>{localCar?.reactions?.wow || 0}</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity 
-                                    style={styles.reactionButton}
-                                    onPress={() => handleReactionChange('love')}
-                                >
-                                    <Text style={styles.reaction}>❤️</Text>
-                                    <Text style={styles.reactionCount}>{localCar?.reactions?.love || 0}</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity 
-                                    style={styles.reactionButton}
-                                    onPress={() => handleReactionChange('sad')}
-                                >
-                                    <Text style={styles.reaction}>😢</Text>
-                                    <Text style={styles.reactionCount}>{localCar?.reactions?.sad || 0}</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </ModernCard>
+                            )
+                        })}
+                    </ScrollView>
+                </View>
 
-                    {/* Image Gallery Card */}
-                    <ModernCard style={styles.galleryCard}>
-                        <Text style={styles.sectionTitle}>Photo Gallery</Text>
-                        <ScrollView 
-                            horizontal 
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={styles.galleryContent}
-                        >
-                            {localCar?.images?.map((img, index) => {
-                                const imageUrl = `${BASE_URL}/images/uploads/${img}`
-                                return (
-                                    <TouchableOpacity 
-                                        key={index} 
-                                        onPress={() => handleImagePress(imageUrl)}
-                                        style={styles.galleryImageContainer}
-                                    >
-                                        <Image source={{ uri: imageUrl }} style={styles.galleryImage} />
-                                    </TouchableOpacity>
-                                )
-                            })}
-                        </ScrollView>
-                    </ModernCard>
+                {/* Book Car Button */}
+                <TouchableOpacity
+                    style={[styles.bookButton, !localCar?.availability && styles.bookButtonDisabled]}
+                    onPress={() => router.push({
+                        pathname: '/(auths)/confirm-rent',
+                        params: { id: car?.id }
+                    })}
+                    disabled={!localCar?.availability}>
+                    <Text style={styles.bookButtonText}>Rent Car</Text>
+                </TouchableOpacity>
+            </ScrollView>
 
-                    {/* Rent Button */}
-                    <ModernCard style={styles.actionCard}>
-                        <ModernButton
-                            title="Rent This Car"
-                            onPress={() => router.push({
-                                pathname: '/(auths)/confirm-rent',
-                                params: { id: car?.id }
-                            })}
-                            disabled={!localCar?.availability}
-                            variant={localCar?.availability ? 'primary' : 'outline'}
-                            size="large"
-                        />
-                        {!localCar?.availability && (
-                            <Text style={styles.unavailableText}>
-                                This vehicle is currently unavailable
-                            </Text>
-                        )}
-                    </ModernCard>
-                </ScrollView>
-
-                {/* Modal for Fullscreen Image */}
-                <Modal visible={modalVisible} transparent animationType="fade">
-                    <TouchableWithoutFeedback onPress={closeModal}>
-                        <View style={styles.modalOverlay}>
-                            <Image source={{ uri: selectedImage }} style={styles.fullImage} />
-                        </View>
-                    </TouchableWithoutFeedback>
-                </Modal>
-            </View>
-        </GradientBackground>
+            {/* Modal for Fullscreen Image */}
+            <Modal visible={modalVisible} transparent animationType="fade">
+                <TouchableWithoutFeedback onPress={closeModal}>
+                    <View style={styles.modalOverlay}>
+                        <Image source={{ uri: selectedImage }} style={styles.fullImage} />
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
+        </View>
     )
 }
 
@@ -263,127 +204,96 @@ export default Car
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
-    },
-    headerCard: {
-        marginBottom: 16,
+        backgroundColor: 'rgba(245,245,245,0.8)',
     },
     header: {
+        backgroundColor: 'rgba(0, 122, 255, 0.4)',
+        padding: 10,
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
     },
-    headerTitle: {
-        fontSize: 24,
+    backButton: {
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        backgroundColor: '#fff',
+        borderRadius: 5,
+    },
+    backButtonText: {
+        color: '#007AFF',
         fontWeight: 'bold',
-        color: COLORS.neutral.dark,
+        fontSize: 16,
     },
     contentContainer: {
-        paddingBottom: 20,
-    },
-    detailsCard: {
-        marginBottom: 16,
-    },
-    ratingCard: {
-        marginBottom: 16,
-    },
-    galleryCard: {
-        marginBottom: 16,
-    },
-    actionCard: {
-        marginBottom: 16,
-    },
-    sectionTitle: {
-        fontSize: 20,
-        fontWeight: '700',
-        color: COLORS.neutral.dark,
-        marginBottom: 16,
+        padding: 20,
     },
     detailsRow: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        paddingVertical: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: COLORS.neutral.light,
+        alignItems: 'center',
+        marginVertical: 5,
     },
     label: {
         fontSize: 16,
-        fontWeight: '600',
-        color: COLORS.neutral.medium,
-        flex: 1,
+        fontWeight: 'bold',
+        color: '#333',
     },
     value: {
         fontSize: 16,
-        fontWeight: '500',
-        color: COLORS.neutral.dark,
-        flex: 2,
-        textAlign: 'right',
+        color: '#555',
+        marginLeft: 5,
     },
-    priceValue: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: COLORS.primary.solid,
-        flex: 2,
-        textAlign: 'right',
+    available: {
+        color: 'green',
     },
-    ratingContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: COLORS.neutral.light,
-        marginBottom: 16,
+    unavailable: {
+        color: 'red',
+    },
+    divider: {
+        marginVertical: 5,
+        backgroundColor: '#9CA3AF',
+        height: 1,
     },
     reactionsContainer: {
-        marginTop: 8,
+        marginVertical: 10,
     },
     reactionsRow: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        marginTop: 12,
-    },
-    reactionButton: {
-        alignItems: 'center',
-        padding: 8,
-        borderRadius: 12,
-        backgroundColor: COLORS.neutral.light,
-        minWidth: 50,
+        marginTop: 5,
     },
     reaction: {
-        fontSize: 24,
-        marginBottom: 4,
+        fontSize: 18,
+        color: '#555',
+        marginHorizontal: 5,
     },
-    reactionCount: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: COLORS.neutral.dark,
+    galleryContainer: {
+        marginBottom: 20,
     },
-    galleryContent: {
-        paddingRight: 16,
-    },
-    galleryImageContainer: {
-        marginRight: 12,
-        borderRadius: 12,
-        overflow: 'hidden',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+    galleryTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        color: '#333',
     },
     galleryImage: {
-        width: 120,
-        height: 120,
-        borderRadius: 12,
+        width: 100,
+        height: 100,
+        borderRadius: 10,
+        marginRight: 10,
     },
-    unavailableText: {
-        textAlign: 'center',
-        marginTop: 12,
-        fontSize: 14,
-        color: COLORS.neutral.medium,
-        fontStyle: 'italic',
+    bookButton: {
+        backgroundColor: '#007AFF',
+        paddingVertical: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginTop: 20,
+    },
+    bookButtonDisabled: {
+        backgroundColor: 'gray',
+    },
+    bookButtonText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
     },
     modalOverlay: {
         flex: 1,

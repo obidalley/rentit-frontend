@@ -7,10 +7,14 @@ import {
     TouchableOpacity,
     Linking
 } from 'react-native'
-import { Divider } from 'react-native-paper'
 import moment from 'moment'
 
+import { COLORS } from '@/constants'
 import useAuth from '@/hooks/useAuth'
+import GradientBackground from '@/components/ui/GradientBackground'
+import ModernCard from '@/components/ui/ModernCard'
+import ModernButton from '@/components/ui/Buttons/ModernButton'
+import StatusBadge from '@/components/ui/StatusBadge'
 
 const Rent = ({ rent }) => {
     const { user } = useAuth()
@@ -21,147 +25,138 @@ const Rent = ({ rent }) => {
         }
     }
 
-    const getStatusStyle = (status) => {
-        switch (status) {
-            case 'Pending':
-                return styles.pending
-            case 'Active':
-                return styles.active
-            case 'Completed':
-                return styles.completed
-            case 'Cancelled':
-                return styles.cancelled
-            default:
-                return {}
-        }
-    }
-
     const formatPrice = pricePerDay => Number(pricePerDay).toLocaleString()
 
     return (
-        <View style={styles.container}>
-            <ScrollView contentContainerStyle={styles.contentContainer}>
-                {/* Rent Details */}
-                <View style={styles.detailsRow}>
-                    <Text style={styles.label}>Booking Code:</Text>
-                    <Text style={styles.value}>{rent.bookingcode}</Text>
-                </View>
-                <Divider style={styles.divider} />
-                <View style={styles.detailsRow}>
-                    <Text style={styles.label}>Rent Date:</Text>
-                    <Text style={styles.value}>{moment(rent.startdate).format('DD MMM YYYY')}</Text>
-                </View>
-                <Divider style={styles.divider} />
-                <View style={styles.detailsRow}>
-                    <Text style={styles.label}>End On:</Text>
-                    <Text style={styles.value}>{moment(rent.enddate).format('DD MMM YYYY')}</Text>
-                </View>
-                <Divider style={styles.divider} />
-                <View style={styles.detailsRow}>
-                    <Text style={styles.label}>Status:</Text>
-                    <View style={[styles.statusTag, getStatusStyle(rent.status)]}><Text style={styles.statusText}>{rent?.status}</Text></View>
-                </View>
-                <Divider style={styles.divider} />
-
-                {/* Car details section */}
-                <View style={styles.separatorContainer}>
-                    <View style={styles.line} />
-                    <Text style={styles.orText}>Car Details</Text>
-                    <View style={styles.line} />
-                </View>
-                <View style={styles.detailsRow}>
-                    <Text style={styles.label}>Name:</Text>
-                    <Text style={styles.value}>{rent?.car?.name}</Text>
-                </View>
-                <Divider style={styles.divider} />
-                <View style={styles.detailsRow}>
-                    <Text style={styles.label}>Make:</Text>
-                    <Text style={styles.value}>{rent?.car?.make}</Text>
-                </View>
-                <Divider style={styles.divider} />
-                <View style={styles.detailsRow}>
-                    <Text style={styles.label}>Model:</Text>
-                    <Text style={styles.value}>{rent?.car?.model}</Text>
-                </View>
-                <Divider style={styles.divider} />
-
-                {/* Car driver details section */}
-                {rent?.driverincluded && (
-                    <>
-                        <View style={styles.separatorContainer}>
-                            <View style={styles.line} />
-                            <Text style={styles.orText}>Driver's Details</Text>
-                            <View style={styles.line} />
-                        </View>
+        <GradientBackground colors={COLORS.background.light}>
+            <View style={styles.container}>
+                <ScrollView 
+                    contentContainerStyle={styles.contentContainer}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {/* Booking Details Card */}
+                    <ModernCard style={styles.detailsCard}>
+                        <Text style={styles.sectionTitle}>Booking Information</Text>
+                        
                         <View style={styles.detailsRow}>
-                            <Text style={styles.label}>Name:</Text>
-                            <Text style={styles.value}>{`${rent?.driver?.name.firstname} ${rent?.driver?.name.othername} ${rent?.driver?.name.surname}`}</Text>
+                            <Text style={styles.label}>Booking Code</Text>
+                            <Text style={styles.value}>{rent.bookingcode}</Text>
                         </View>
-                        <Divider style={styles.divider} />
+                        
                         <View style={styles.detailsRow}>
-                            <Text style={styles.label}>Phone:</Text>
-                            <Text style={styles.value}>{rent?.driver?.contact?.phone}</Text>
+                            <Text style={styles.label}>Start Date</Text>
+                            <Text style={styles.value}>{moment(rent.startdate).format('DD MMM YYYY')}</Text>
                         </View>
-                        <Divider style={styles.divider} />
-                        <View style={styles.buttonContainer}>
-                            <TouchableOpacity style={styles.callButton} onPress={() => handleCall(rent?.driver?.contact?.phone)}>
-                                <Text style={styles.buttonText}>Call</Text>
-                            </TouchableOpacity>
+                        
+                        <View style={styles.detailsRow}>
+                            <Text style={styles.label}>End Date</Text>
+                            <Text style={styles.value}>{moment(rent.enddate).format('DD MMM YYYY')}</Text>
                         </View>
-                        <Divider style={styles.divider} />
-                    </>
-                )}
+                        
+                        <View style={styles.detailsRow}>
+                            <Text style={styles.label}>Status</Text>
+                            <StatusBadge status={rent?.status} size="small" />
+                        </View>
+                    </ModernCard>
 
-                {/* Car customer details section */}
-                {user?.roles.includes('Admin') && (
-                    <>
-                        <View style={styles.separatorContainer}>
-                            <View style={styles.line} />
-                            <Text style={styles.orText}>Customer's Details</Text>
-                            <View style={styles.line} />
-                        </View>
+                    {/* Car Details Card */}
+                    <ModernCard style={styles.detailsCard}>
+                        <Text style={styles.sectionTitle}>Vehicle Details</Text>
+                        
                         <View style={styles.detailsRow}>
-                            <Text style={styles.label}>Name:</Text>
-                            <Text style={styles.value}>{`${rent?.customer?.name.firstname} ${rent?.customer?.name.othername} ${rent?.customer?.name.surname}`}</Text>
+                            <Text style={styles.label}>Car Name</Text>
+                            <Text style={styles.value}>{rent?.car?.name}</Text>
                         </View>
-                        <Divider style={styles.divider} />
+                        
                         <View style={styles.detailsRow}>
-                            <Text style={styles.label}>Phone:</Text>
-                            <Text style={styles.value}>{rent?.customer?.contact?.phone}</Text>
+                            <Text style={styles.label}>Make</Text>
+                            <Text style={styles.value}>{rent?.car?.make}</Text>
                         </View>
-                        <Divider style={styles.divider} />
-                        <View style={styles.buttonContainer}>
-                            <TouchableOpacity style={styles.callButton} onPress={() => handleCall(rent?.customer?.contact?.phone)}>
-                                <Text style={styles.buttonText}>Call</Text>
-                            </TouchableOpacity>
+                        
+                        <View style={styles.detailsRow}>
+                            <Text style={styles.label}>Model</Text>
+                            <Text style={styles.value}>{rent?.car?.model}</Text>
                         </View>
-                        <Divider style={styles.divider} />
-                    </>
-                )}
+                    </ModernCard>
 
-                {/* Payment details section */}
-                <View style={styles.separatorContainer}>
-                    <View style={styles.line} />
-                    <Text style={styles.orText}>Payments Details</Text>
-                    <View style={styles.line} />
-                </View>
-                <View style={styles.detailsRow}>
-                    <Text style={styles.label}>Amount:</Text>
-                    <Text style={styles.value}>₦{formatPrice(rent?.payment?.amount)}</Text>
-                </View>
-                <Divider style={styles.divider} />
-                <View style={styles.detailsRow}>
-                    <Text style={styles.label}>Payment Method:</Text>
-                    <Text style={styles.value}>{rent?.payment?.paymentmethod}</Text>
-                </View>
-                <Divider style={styles.divider} />
-                <View style={styles.detailsRow}>
-                    <Text style={styles.label}>Status:</Text>
-                    <Text style={styles.value}>{rent?.payment?.status}</Text>
-                </View>
-                <Divider style={styles.divider} />
-            </ScrollView>
-        </View>
+                    {/* Driver Details Card */}
+                    {rent?.driverincluded && (
+                        <ModernCard style={styles.detailsCard}>
+                            <Text style={styles.sectionTitle}>Driver Information</Text>
+                            
+                            <View style={styles.detailsRow}>
+                                <Text style={styles.label}>Driver Name</Text>
+                                <Text style={styles.value}>
+                                    {`${rent?.driver?.name.firstname} ${rent?.driver?.name.othername} ${rent?.driver?.name.surname}`}
+                                </Text>
+                            </View>
+                            
+                            <View style={styles.detailsRow}>
+                                <Text style={styles.label}>Phone Number</Text>
+                                <Text style={styles.value}>{rent?.driver?.contact?.phone}</Text>
+                            </View>
+                            
+                            <View style={styles.actionContainer}>
+                                <ModernButton
+                                    title="Call Driver"
+                                    onPress={() => handleCall(rent?.driver?.contact?.phone)}
+                                    variant="success"
+                                    size="medium"
+                                />
+                            </View>
+                        </ModernCard>
+                    )}
+
+                    {/* Customer Details Card (Admin Only) */}
+                    {user?.roles.includes('Admin') && (
+                        <ModernCard style={styles.detailsCard}>
+                            <Text style={styles.sectionTitle}>Customer Information</Text>
+                            
+                            <View style={styles.detailsRow}>
+                                <Text style={styles.label}>Customer Name</Text>
+                                <Text style={styles.value}>
+                                    {`${rent?.customer?.name.firstname} ${rent?.customer?.name.othername} ${rent?.customer?.name.surname}`}
+                                </Text>
+                            </View>
+                            
+                            <View style={styles.detailsRow}>
+                                <Text style={styles.label}>Phone Number</Text>
+                                <Text style={styles.value}>{rent?.customer?.contact?.phone}</Text>
+                            </View>
+                            
+                            <View style={styles.actionContainer}>
+                                <ModernButton
+                                    title="Call Customer"
+                                    onPress={() => handleCall(rent?.customer?.contact?.phone)}
+                                    variant="success"
+                                    size="medium"
+                                />
+                            </View>
+                        </ModernCard>
+                    )}
+
+                    {/* Payment Details Card */}
+                    <ModernCard style={styles.detailsCard}>
+                        <Text style={styles.sectionTitle}>Payment Information</Text>
+                        
+                        <View style={styles.detailsRow}>
+                            <Text style={styles.label}>Total Amount</Text>
+                            <Text style={styles.priceValue}>₦{formatPrice(rent?.payment?.amount)}</Text>
+                        </View>
+                        
+                        <View style={styles.detailsRow}>
+                            <Text style={styles.label}>Payment Method</Text>
+                            <Text style={styles.value}>{rent?.payment?.paymentmethod}</Text>
+                        </View>
+                        
+                        <View style={styles.detailsRow}>
+                            <Text style={styles.label}>Payment Status</Text>
+                            <StatusBadge status={rent?.payment?.status} size="small" />
+                        </View>
+                    </ModernCard>
+                </ScrollView>
+            </View>
+        </GradientBackground>
     )
 }
 
@@ -170,95 +165,50 @@ export default Rent
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'rgba(245,245,245,0.8)',
+        padding: 16,
     },
     contentContainer: {
-        padding: 20,
+        paddingBottom: 20,
+    },
+    detailsCard: {
+        marginBottom: 16,
+    },
+    sectionTitle: {
+        fontSize: 20,
+        fontWeight: '700',
+        color: COLORS.neutral.dark,
+        marginBottom: 16,
     },
     detailsRow: {
         flexDirection: 'row',
-        alignItems: 'center',
-        marginVertical: 5,
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: COLORS.neutral.light,
     },
     label: {
         fontSize: 16,
-        fontWeight: 'bold',
-        color: '#333',
-        fontStyle: 'italic'
+        fontWeight: '600',
+        color: COLORS.neutral.medium,
+        flex: 1,
     },
     value: {
         fontSize: 16,
-        color: '#555',
-        marginLeft: 5,
+        fontWeight: '500',
+        color: COLORS.neutral.dark,
+        flex: 2,
+        textAlign: 'right',
     },
-    divider: {
-        marginVertical: 8,
-        backgroundColor: '#9CA3AF',
-        height: 1,
-    },
-    separatorContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 10,
-    },
-    line: {
-        flex: 1,
-        height: 1,
-        backgroundColor: 'black',
-    },
-    orText: {
-        marginHorizontal: 10,
-        color: 'black',
-        fontSize: 16,
-        fontWeight: '600',
-        fontStyle: 'italic'
-    },
-    buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginTop: 10,
-    },
-    callButton: {
-        backgroundColor: 'green',
-        paddingVertical: 15,
-        borderRadius: 10,
-        alignItems: 'center',
-        width: '40%',
-    },
-    emailButton: {
-        backgroundColor: 'blue',
-        paddingVertical: 15,
-        borderRadius: 10,
-        alignItems: 'center',
-        width: '40%',
-    },
-    buttonText: {
-        color: '#fff',
+    priceValue: {
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: '700',
+        color: COLORS.primary.solid,
+        flex: 2,
+        textAlign: 'right',
     },
-    statusTag: {
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 4,
-        alignSelf: 'flex-start',
-        marginTop: 5,
-    },
-    pending: {
-        backgroundColor: 'orange',
-    },
-    active: {
-        backgroundColor: 'green',
-    },
-    completed: {
-        backgroundColor: 'blue',
-    },
-    cancelled: {
-        backgroundColor: 'red',
-    },
-    statusText: {
-        color: 'white',
-        fontSize: 12,
-        fontWeight: 'bold',
+    actionContainer: {
+        alignItems: 'center',
+        marginTop: 16,
     },
 })
