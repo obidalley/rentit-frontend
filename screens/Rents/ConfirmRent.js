@@ -10,19 +10,21 @@ import {
 } from 'react-native'
 import CheckBox from 'expo-checkbox'
 import { Picker } from '@react-native-picker/picker'
-import { Divider } from 'react-native-paper'
 import { Paystack } from 'react-native-paystack-webview'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import moment from 'moment'
 import NetInfo from '@react-native-community/netinfo'
 import { useRouter } from 'expo-router'
 
-import { PAYMENT_API_KEY } from '@/constants'
+import { PAYMENT_API_KEY, COLORS } from '@/constants'
 import { useGetDriversQuery } from '@/apis/driversApi'
 import { useAddNewPaymentMutation } from '@/apis/paymentsApi'
 import { useAddNewRentMutation } from '@/apis/rentApi'
 import { useUpdateCarMutation } from '@/apis/carsApi'
 import useAuth from '@/hooks/useAuth'
+import GradientBackground from '@/components/ui/GradientBackground'
+import ModernCard from '@/components/ui/ModernCard'
+import ModernButton from '@/components/ui/Buttons/ModernButton'
 
 const RentConfirmation = ({ car }) => {
     // Local state variables
@@ -213,128 +215,165 @@ const RentConfirmation = ({ car }) => {
     }
 
     return (
-        <View style={styles.container}>
-            <ScrollView contentContainerStyle={styles.contentContainer}>
-                {/* Car Details */}
-                <View style={styles.detailsRow}>
-                    <Text style={styles.label}>Car Name:</Text>
-                    <Text style={styles.value}>{car?.name}</Text>
-                </View>
-                <Divider style={styles.divider} />
-                <View style={styles.detailsRow}>
-                    <Text style={styles.label}>Make:</Text>
-                    <Text style={styles.value}>{car?.make}</Text>
-                </View>
-                <Divider style={styles.divider} />
-                <View style={styles.detailsRow}>
-                    <Text style={styles.label}>Model:</Text>
-                    <Text style={styles.value}>{car?.model}</Text>
-                </View>
-                <Divider style={styles.divider} />
-                <View style={styles.detailsRow}>
-                    <Text style={styles.label}>Price per Day:</Text>
-                    <Text style={styles.value}>
-                        ₦{Number(car?.priceperday).toLocaleString()}
-                    </Text>
-                </View>
-                <Divider style={styles.divider} />
-
-                {/* Date Selection */}
-                <View style={styles.dateSection}>
-                    <TouchableOpacity
-                        onPress={() => setShowStartDatePicker(true)}
-                        style={styles.dateButton}
-                    >
-                        <Text style={styles.dateButtonText}>
-                            Select Start Date: {moment(startDate).format('DD MMM YYYY')}
-                        </Text>
-                    </TouchableOpacity>
-                    {showStartDatePicker && (
-                        <DateTimePicker
-                            value={startDate}
-                            mode='date'
-                            display='default'
-                            onChange={onChangeStartDate}
-                        />
-                    )}
-                    <TouchableOpacity
-                        onPress={() => setShowEndDatePicker(true)}
-                        style={styles.dateButton}
-                    >
-                        <Text style={styles.dateButtonText}>
-                            Select End Date: {moment(endDate).format('DD MMM YYYY')}
-                        </Text>
-                    </TouchableOpacity>
-                    {showEndDatePicker && (
-                        <DateTimePicker
-                            value={endDate}
-                            mode='date'
-                            display='default'
-                            onChange={onChangeEndDate}
-                        />
-                    )}
-                </View>
-                <Divider style={styles.divider} />
-
-                {/* Cost Calculations */}
-                <Text style={styles.calculationText}>
-                    Number of Days: {numberOfDays}
-                </Text>
-                <Text style={styles.calculationText}>
-                    Car Cost: ₦{Number(carAmount).toLocaleString()}
-                </Text>
-                {includeDriver && (
-                    <Text style={styles.calculationText}>
-                        Driver Cost: ₦{Number(driverAmount).toLocaleString()}
-                    </Text>
-                )}
-                <Text style={styles.totalText}>
-                    Total Amount to Pay: ₦{Number(totalAmount).toLocaleString()}
-                </Text>
-
-                {/* Driver Option */}
-                <View style={styles.checkboxContainer}>
-                    <CheckBox value={includeDriver} onValueChange={setIncludeDriver} />
-                    <Text style={styles.checkboxLabel}>Include Driver</Text>
-                </View>
-                {includeDriver && (
-                    <View style={styles.driverSection}>
-                        <Text style={styles.label}>Select a Driver:</Text>
-                        <Picker
-                            selectedValue={selectedDriver}
-                            onValueChange={(itemValue) => setSelectedDriver(itemValue)}
-                            style={styles.picker}
-                        >
-                            <Picker.Item label='Select a driver' value={null} />
-                            {drivers &&
-                                drivers.map((driver) => (
-                                    <Picker.Item
-                                        key={driver.id}
-                                        label={`${driver?.name?.firstname} ${driver?.name?.othername} ${driver?.name?.surname} - ₦${Number(
-                                            driver.priceperday
-                                        ).toLocaleString()}`}
-                                        value={driver.id}
-                                    />
-                                ))}
-                        </Picker>
-                    </View>
-                )}
-
-                {/* Proceed to Payment */}
-                <TouchableOpacity
-                    style={styles.proceedButton}
-                    onPress={handleProceedToPayment}
+        <GradientBackground colors={COLORS.background.light}>
+            <View style={styles.container}>
+                <ScrollView 
+                    contentContainerStyle={styles.contentContainer}
+                    showsVerticalScrollIndicator={false}
                 >
-                    <Text style={styles.proceedButtonText}>Proceed to Payment</Text>
-                </TouchableOpacity>
-            </ScrollView>
+                    {/* Car Details Card */}
+                    <ModernCard style={styles.detailsCard}>
+                        <Text style={styles.sectionTitle}>Vehicle Details</Text>
+                        
+                        <View style={styles.detailsRow}>
+                            <Text style={styles.label}>Car Name</Text>
+                            <Text style={styles.value}>{car?.name}</Text>
+                        </View>
+                        
+                        <View style={styles.detailsRow}>
+                            <Text style={styles.label}>Make</Text>
+                            <Text style={styles.value}>{car?.make}</Text>
+                        </View>
+                        
+                        <View style={styles.detailsRow}>
+                            <Text style={styles.label}>Model</Text>
+                            <Text style={styles.value}>{car?.model}</Text>
+                        </View>
+                        
+                        <View style={styles.detailsRow}>
+                            <Text style={styles.label}>Price per Day</Text>
+                            <Text style={styles.priceValue}>
+                                ₦{Number(car?.priceperday).toLocaleString()}
+                            </Text>
+                        </View>
+                    </ModernCard>
+
+                    {/* Date Selection Card */}
+                    <ModernCard style={styles.dateCard}>
+                        <Text style={styles.sectionTitle}>Rental Period</Text>
+                        
+                        <View style={styles.dateSection}>
+                            <ModernButton
+                                title={`Start Date: ${moment(startDate).format('DD MMM YYYY')}`}
+                                onPress={() => setShowStartDatePicker(true)}
+                                variant="outline"
+                                size="medium"
+                            />
+                            {showStartDatePicker && (
+                                <DateTimePicker
+                                    value={startDate}
+                                    mode='date'
+                                    display='default'
+                                    onChange={onChangeStartDate}
+                                />
+                            )}
+                            
+                            <ModernButton
+                                title={`End Date: ${moment(endDate).format('DD MMM YYYY')}`}
+                                onPress={() => setShowEndDatePicker(true)}
+                                variant="outline"
+                                size="medium"
+                            />
+                            {showEndDatePicker && (
+                                <DateTimePicker
+                                    value={endDate}
+                                    mode='date'
+                                    display='default'
+                                    onChange={onChangeEndDate}
+                                />
+                            )}
+                        </View>
+                    </ModernCard>
+
+                    {/* Driver Selection Card */}
+                    <ModernCard style={styles.driverCard}>
+                        <Text style={styles.sectionTitle}>Driver Service</Text>
+                        
+                        <View style={styles.checkboxContainer}>
+                            <CheckBox 
+                                value={includeDriver} 
+                                onValueChange={setIncludeDriver}
+                                color={includeDriver ? COLORS.primary.solid : undefined}
+                            />
+                            <Text style={styles.checkboxLabel}>Include Professional Driver</Text>
+                        </View>
+                        
+                        {includeDriver && (
+                            <View style={styles.driverSection}>
+                                <Text style={styles.label}>Select Driver</Text>
+                                <View style={styles.pickerContainer}>
+                                    <Picker
+                                        selectedValue={selectedDriver}
+                                        onValueChange={(itemValue) => setSelectedDriver(itemValue)}
+                                        style={styles.picker}
+                                    >
+                                        <Picker.Item label='Choose a driver...' value={null} />
+                                        {drivers &&
+                                            drivers.map((driver) => (
+                                                <Picker.Item
+                                                    key={driver.id}
+                                                    label={`${driver?.name?.firstname} ${driver?.name?.othername} ${driver?.name?.surname} - ₦${Number(
+                                                        driver.priceperday
+                                                    ).toLocaleString()}/day`}
+                                                    value={driver.id}
+                                                />
+                                            ))}
+                                    </Picker>
+                                </View>
+                            </View>
+                        )}
+                    </ModernCard>
+
+                    {/* Cost Summary Card */}
+                    <ModernCard style={styles.summaryCard}>
+                        <Text style={styles.sectionTitle}>Cost Summary</Text>
+                        
+                        <View style={styles.calculationRow}>
+                            <Text style={styles.calculationLabel}>Rental Days</Text>
+                            <Text style={styles.calculationValue}>{numberOfDays} days</Text>
+                        </View>
+                        
+                        <View style={styles.calculationRow}>
+                            <Text style={styles.calculationLabel}>Car Cost</Text>
+                            <Text style={styles.calculationValue}>₦{Number(carAmount).toLocaleString()}</Text>
+                        </View>
+                        
+                        {includeDriver && (
+                            <View style={styles.calculationRow}>
+                                <Text style={styles.calculationLabel}>Driver Cost</Text>
+                                <Text style={styles.calculationValue}>₦{Number(driverAmount).toLocaleString()}</Text>
+                            </View>
+                        )}
+                        
+                        <View style={[styles.calculationRow, styles.totalRow]}>
+                            <Text style={styles.totalLabel}>Total Amount</Text>
+                            <Text style={styles.totalValue}>₦{Number(totalAmount).toLocaleString()}</Text>
+                        </View>
+                    </ModernCard>
+
+                    {/* Payment Button */}
+                    <ModernCard style={styles.actionCard}>
+                        <ModernButton
+                            title="Proceed to Payment"
+                            onPress={handleProceedToPayment}
+                            variant="primary"
+                            size="large"
+                        />
+                    </ModernCard>
+                </ScrollView>
+            </View>
 
             {/* Payment Modal */}
             <Modal visible={showPaymentModal} animationType='slide'>
-                <View style={styles.modalContainer}>
+                <GradientBackground colors={COLORS.background.primary}>
+                    <View style={styles.modalContainer}>
                     <Paystack
                         buttonText='Pay Now'
-                        btnStyles={{ backgroundColor: 'green' }}
+                        btnStyles={{ 
+                            backgroundColor: COLORS.primary.solid,
+                            borderRadius: 12,
+                            paddingVertical: 16
+                        }}
                         paystackKey={PAYMENT_API_KEY}
                         amount={totalAmount}
                         billingEmail={user?.email}
@@ -344,15 +383,16 @@ const RentConfirmation = ({ car }) => {
                         onSuccess={handlePaymentSuccess}
                         autoStart={true}
                     />
-                    <TouchableOpacity
-                        style={styles.closeButton}
-                        onPress={() => setShowPaymentModal(false)}
-                    >
-                        <Text style={styles.closeButtonText}>Close Payment</Text>
-                    </TouchableOpacity>
-                </View>
+                        <ModernButton
+                            title="Cancel Payment"
+                            onPress={() => setShowPaymentModal(false)}
+                            variant="outline"
+                            size="large"
+                        />
+                    </View>
+                </GradientBackground>
             </Modal>
-        </View>
+        </GradientBackground>
     )
 }
 
@@ -361,102 +401,122 @@ export default RentConfirmation
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'rgba(245,245,245,0.8)',
+        padding: 16,
     },
     contentContainer: {
-        padding: 20,
+        paddingBottom: 20,
+    },
+    detailsCard: {
+        marginBottom: 16,
+    },
+    dateCard: {
+        marginBottom: 16,
+    },
+    driverCard: {
+        marginBottom: 16,
+    },
+    summaryCard: {
+        marginBottom: 16,
+    },
+    actionCard: {
+        marginBottom: 16,
+    },
+    sectionTitle: {
+        fontSize: 20,
+        fontWeight: '700',
+        color: COLORS.neutral.dark,
+        marginBottom: 16,
     },
     detailsRow: {
         flexDirection: 'row',
-        alignItems: 'center',
-        marginVertical: 5,
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: COLORS.neutral.light,
     },
     label: {
         fontSize: 16,
-        fontWeight: 'bold',
-        color: '#333',
+        fontWeight: '600',
+        color: COLORS.neutral.medium,
+        flex: 1,
     },
     value: {
         fontSize: 16,
-        color: '#555',
-        marginLeft: 5,
+        fontWeight: '500',
+        color: COLORS.neutral.dark,
+        flex: 2,
+        textAlign: 'right',
     },
-    divider: {
-        marginVertical: 5,
-        backgroundColor: '#9CA3AF',
-        height: 1,
+    priceValue: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: COLORS.primary.solid,
+        flex: 2,
+        textAlign: 'right',
     },
     dateSection: {
-        marginVertical: 10,
-    },
-    dateButton: {
-        backgroundColor: '#007AFF',
-        padding: 10,
-        borderRadius: 5,
-        marginVertical: 5,
-    },
-    dateButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        textAlign: 'center',
-    },
-    calculationText: {
-        fontSize: 16,
-        color: '#333',
-        marginVertical: 2,
-    },
-    totalText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: 'green',
-        marginVertical: 10,
+        gap: 12,
     },
     checkboxContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 10,
+        marginBottom: 16,
     },
     checkboxLabel: {
         marginLeft: 8,
         fontSize: 16,
-        color: '#333',
+        fontWeight: '500',
+        color: COLORS.neutral.dark,
     },
     driverSection: {
-        marginVertical: 10,
+        marginTop: 16,
+    },
+    pickerContainer: {
+        backgroundColor: COLORS.neutral.light,
+        borderRadius: 12,
+        marginTop: 8,
     },
     picker: {
         height: 50,
         width: '100%',
-        color: '#333',
+        color: COLORS.neutral.dark,
     },
-    proceedButton: {
-        backgroundColor: 'green',
-        paddingVertical: 15,
-        borderRadius: 10,
+    calculationRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        marginTop: 20,
+        paddingVertical: 8,
     },
-    proceedButtonText: {
-        color: '#fff',
+    calculationLabel: {
+        fontSize: 16,
+        color: COLORS.neutral.medium,
+        fontWeight: '500',
+    },
+    calculationValue: {
+        fontSize: 16,
+        color: COLORS.neutral.dark,
+        fontWeight: '600',
+    },
+    totalRow: {
+        borderTopWidth: 2,
+        borderTopColor: COLORS.primary.solid,
+        marginTop: 8,
+        paddingTop: 16,
+    },
+    totalLabel: {
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: '700',
+        color: COLORS.neutral.dark,
+    },
+    totalValue: {
+        fontSize: 20,
+        fontWeight: '800',
+        color: COLORS.primary.solid,
     },
     modalContainer: {
         flex: 1,
         justifyContent: 'center',
         padding: 20,
-        backgroundColor: '#fff',
-    },
-    closeButton: {
-        marginTop: 20,
-        paddingVertical: 15,
-        backgroundColor: 'red',
-        borderRadius: 10,
-        alignItems: 'center',
-    },
-    closeButtonText: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
     },
 })

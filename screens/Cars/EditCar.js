@@ -4,17 +4,20 @@ import {
     Text,
     Alert,
     View,
-    TouchableOpacity,
     SafeAreaView,
     ScrollView
 } from 'react-native'
 import * as Yup from 'yup'
 import { useDispatch } from 'react-redux'
 
+import { COLORS } from '@/constants'
 import { useUpdateCarMutation } from '@/apis/carsApi'
 import { setSpinner } from '@/store/slices/spinnerSlice'
 
 import { Form, FormField, SubmitButton } from '@/components/forms'
+import GradientBackground from '@/components/ui/GradientBackground'
+import ModernCard from '@/components/ui/ModernCard'
+import ModernButton from '@/components/ui/Buttons/ModernButton'
 
 const validationSchema = Yup.object().shape({
     name: Yup.string().required().label('Name'),
@@ -74,38 +77,64 @@ const EditCar = ({ selectedCar, changeMode }) => {
     }
 
     return (
-        <SafeAreaView style={styles.container}>
-            <ScrollView>
-                <View style={styles.header}>
-                    <Text style={styles.tagline}>Edit Car Detials</Text>
-                    <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => changeMode('View')}>
-                        <Text style={styles.buttonText}>Back</Text>
-                    </TouchableOpacity>
-                </View>
-                <Form
-                    initialValues={{
-                        name: selectedCar.name,
-                        make: selectedCar.make,
-                        model: selectedCar.model,
-                        priceperday: selectedCar.priceperday.toString(),
-                    }}
-                    onSubmit={handleSubmit}
-                    validationSchema={validationSchema}>
-                    <FormField maxLength={255} name='name' placeholder='Car name' />
-                    <FormField maxLength={255} name='make' placeholder='Car make' />
-                    <FormField maxLength={255} name='model' placeholder='Car model' />
-                    <FormField
-                        keyboardType='numeric'
-                        maxLength={8}
-                        name='priceperday'
-                        placeholder='Price'
-                    />
-                    <SubmitButton title='Update' color='blueDark' />
-                </Form>
-            </ScrollView>
-        </SafeAreaView>
+        <GradientBackground colors={COLORS.background.primary}>
+            <SafeAreaView style={styles.container}>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    <ModernCard style={styles.headerCard}>
+                        <View style={styles.header}>
+                            <Text style={styles.title}>Edit Car Details</Text>
+                            <ModernButton
+                                title="Back"
+                                onPress={() => changeMode('View')}
+                                variant="outline"
+                                size="small"
+                            />
+                        </View>
+                    </ModernCard>
+                    
+                    <ModernCard style={styles.formCard}>
+                        <Text style={styles.sectionTitle}>Vehicle Information</Text>
+                        <Form
+                            initialValues={{
+                                name: selectedCar.name,
+                                make: selectedCar.make,
+                                model: selectedCar.model,
+                                priceperday: selectedCar.priceperday.toString(),
+                            }}
+                            onSubmit={handleSubmit}
+                            validationSchema={validationSchema}
+                        >
+                            <FormField 
+                                maxLength={255} 
+                                name='name' 
+                                placeholder='Car Name'
+                                icon='car'
+                            />
+                            <FormField 
+                                maxLength={255} 
+                                name='make' 
+                                placeholder='Car Make (e.g., Toyota, Honda)'
+                                icon='factory'
+                            />
+                            <FormField 
+                                maxLength={255} 
+                                name='model' 
+                                placeholder='Car Model (e.g., Camry, Civic)'
+                                icon='car-side'
+                            />
+                            <FormField
+                                keyboardType='numeric'
+                                maxLength={8}
+                                name='priceperday'
+                                placeholder='Price per Day (₦)'
+                                icon='currency-ngn'
+                            />
+                            <SubmitButton title='Update Car' />
+                        </Form>
+                    </ModernCard>
+                </ScrollView>
+            </SafeAreaView>
+        </GradientBackground>
     )
 }
 
@@ -116,28 +145,26 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 10,
     },
-    tagline: {
-        color: 'white',
-        marginVertical: 10,
-        textAlign: 'center',
-        fontSize: 16,
+    headerCard: {
+        marginBottom: 16,
     },
     header: {
-        display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        borderBottomColor: 'white',
-        borderBottomWidth: 1,
-        paddingBottom: 10,
+        alignItems: 'center',
     },
-    button: {
-        backgroundColor: 'red',
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 5,
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: COLORS.neutral.dark,
     },
-    buttonText: {
-        color: 'white',
+    formCard: {
+        padding: 20,
+    },
+    sectionTitle: {
         fontSize: 16,
+        fontWeight: '600',
+        color: COLORS.neutral.dark,
+        marginBottom: 16,
     },
 })
