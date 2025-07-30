@@ -1,21 +1,22 @@
 import React from 'react'
 import {
-    StyleSheet,
     Text,
     Alert,
     View,
-    TouchableOpacity,
-    SafeAreaView,
-    ScrollView
+    ScrollView,
+    StyleSheet
 } from 'react-native'
 import * as Yup from 'yup'
 import { useDispatch } from 'react-redux'
 import { useRouter } from 'expo-router'
 
+import { COLORS } from '@/constants'
 import { useAddNewDamageMutation } from '@/apis/damagesApi'
 import useAuth from '@/hooks/useAuth'
 import { setSpinner } from '@/store/slices/spinnerSlice'
 
+import GradientBackground from '@/components/ui/GradientBackground'
+import ModernCard from '@/components/ui/ModernCard'
 import { Form, Textarea, SubmitButton } from '@/components/forms'
 import FormImagePicker from '@/components/forms/FormImagePicker'
 
@@ -88,26 +89,53 @@ const NewDamage = ({ rent }) => {
     }
 
     return (
-        <SafeAreaView style={styles.container}>
-            <ScrollView>
-                <Form
-                    initialValues={{
-                        description: '',
-                        images: [],
-                    }}
-                    onSubmit={handleSubmit}
-                    validationSchema={validationSchema}
-                >
-                    <FormImagePicker name='images' />
-                    <Textarea
-                        autoCorrect={false}
-                        name='description'
-                        placeholder='Damage description'
-                    />
-                    <SubmitButton title='Save' color='blueDark' />
-                </Form>
+        <View style={styles.container}>
+            <View style={styles.header}>
+                <Text style={styles.title}>Report Damage</Text>
+                <Text style={styles.subtitle}>
+                    Please provide details and photos of any damage to the vehicle
+                </Text>
+            </View>
+            
+            <ScrollView 
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+            >
+                <ModernCard style={styles.formCard}>
+                    <Form
+                        initialValues={{
+                            description: '',
+                            images: [],
+                        }}
+                        onSubmit={handleSubmit}
+                        validationSchema={validationSchema}
+                    >
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>Upload Photos</Text>
+                            <Text style={styles.sectionSubtitle}>
+                                Add photos showing the damage clearly
+                            </Text>
+                            <FormImagePicker name='images' />
+                        </View>
+                        
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>Damage Description</Text>
+                            <Text style={styles.sectionSubtitle}>
+                                Describe the damage in detail
+                            </Text>
+                            <Textarea
+                                autoCorrect={false}
+                                name='description'
+                                placeholder='Please describe the damage, when it occurred, and any relevant circumstances...'
+                                numberOfLines={6}
+                            />
+                        </View>
+                        
+                        <SubmitButton title='Submit Damage Report' variant='primary' />
+                    </Form>
+                </ModernCard>
             </ScrollView>
-        </SafeAreaView>
+        </View>
     )
 }
 
@@ -116,34 +144,49 @@ export default NewDamage
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 10,
-    },
-    title: {
-        color: 'white',
-        fontSize: 14,
-    },
-    tagline: {
-        color: 'white',
-        marginVertical: 10,
-        textAlign: 'center',
-        fontSize: 16,
+        padding: 16,
     },
     header: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        borderBottomColor: 'white',
-        borderBottomWidth: 1,
-        paddingBottom: 10,
+        marginBottom: 24,
+        alignItems: 'center',
     },
-    button: {
-        backgroundColor: 'red',
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 5,
+    title: {
+        fontSize: 24,
+        fontWeight: '700',
+        color: COLORS.neutral.dark,
+        marginBottom: 8,
+        textAlign: 'center',
     },
-    buttonText: {
-        color: 'white',
+    subtitle: {
+        fontSize: 16,
+        color: COLORS.neutral.medium,
+        textAlign: 'center',
+        lineHeight: 22,
+        paddingHorizontal: 20,
+    },
+    scrollContent: {
+        paddingBottom: 20,
+    },
+    formCard: {
+        marginBottom: 16,
+    },
+    section: {
+        marginBottom: 24,
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: COLORS.neutral.dark,
+        marginBottom: 4,
+    },
+    sectionSubtitle: {
+        fontSize: 14,
+        color: COLORS.neutral.medium,
+        marginBottom: 12,
+        lineHeight: 20,
+    },
+})
+
         fontSize: 16,
     },
 })

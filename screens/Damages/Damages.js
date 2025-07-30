@@ -1,15 +1,13 @@
 import React, { useState, useMemo } from 'react'
 import {
     View,
-    SafeAreaView,
-    StyleSheet,
     Text,
-    ActivityIndicator,
     FlatList,
     TextInput,
     TouchableOpacity,
     Modal,
-    Alert
+    Alert,
+    StyleSheet
 } from 'react-native'
 import { useDispatch } from 'react-redux'
 import { useRouter } from 'expo-router'
@@ -17,6 +15,13 @@ import { useRouter } from 'expo-router'
 import { useGetDamagesQuery, useDeleteDamageMutation, useUpdateDamageMutation } from '@/apis/damagesApi'
 import useAuth from '@/hooks/useAuth'
 import { setSpinner } from '@/store/slices/spinnerSlice'
+
+import GradientBackground from '@/components/ui/GradientBackground'
+import ModernCard from '@/components/ui/ModernCard'
+import StatusBadge from '@/components/ui/StatusBadge'
+import ModernButton from '@/components/ui/Buttons/ModernButton'
+import ActivityIndicator from '@/components/ActivityIndicator'
+import { COLORS } from '@/constants'
 
 const Damages = ({ changeMode, onSelectDamage, selectedDamage }) => {
     const { user } = useAuth()
@@ -168,59 +173,63 @@ const Damages = ({ changeMode, onSelectDamage, selectedDamage }) => {
     }
 
     const renderDamageItem = ({ item }) => (
-        <View style={styles.itemContainer}>
+        <ModernCard style={styles.itemContainer}>
+            <View style={styles.itemHeader}>
+                <Text style={styles.rentCode}>{item.rent.bookingcode}</Text>
+                <StatusBadge status={item.status} size="small" />
+            </View>
+            
             <View style={styles.itemDetails}>
-                <Text style={styles.itemText}>
-                    <Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>Rent:</Text> {item.rent.bookingcode}
-                </Text>
-                <Text style={styles.itemText}>
-                    <Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>Customer:</Text> {`${item.customer.name.firstname} ${item.customer.name.othername} ${item.customer.name.surname}`}
-                </Text>
-                <View style={{ display: 'flex', flexDirection: 'row', gap: 10 }}>
-                    <Text style={styles.itemText}>
-                        <Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>Status:</Text>
+                <View style={styles.detailRow}>
+                    <Text style={styles.label}>Customer</Text>
+                    <Text style={styles.value}>
+                        {`${item.customer.name.firstname} ${item.customer.name.othername} ${item.customer.name.surname}`}
                     </Text>
-                    <View style={[styles.statusTag, getStatusStyle(item.status)]}>
-                        <Text style={styles.statusText}>
-                            {item.status}
-                        </Text>
-                    </View>
+                </View>
+                <View style={styles.detailRow}>
+                    <Text style={styles.label}>Description</Text>
+                    <Text style={styles.value} numberOfLines={2}>
+                        {item.description}
+                    </Text>
                 </View>
             </View>
+            
             <TouchableOpacity
                 style={styles.ellipsisButton}
                 onPress={() => handleMenuToggle(item)}>
-                <Text style={styles.ellipsisText}>⋮</Text>
+                <Text style={styles.ellipsisText}>•••</Text>
             </TouchableOpacity>
-        </View>
+        </ModernCard>
     )
 
     return (
-        <SafeAreaView style={styles.container}>
-            <TextInput
-                style={styles.searchInput}
-                placeholder='Search Damages...'
-                placeholderTextColor='#ccc'
-                value={searchTerm}
-                onChangeText={setSearchTerm}
-            />
-            {isLoading ? (
-                <ActivityIndicator size='large' color='#fff' />
-            ) : (
-                filteredDamages.length > 0 ? (
+        <View style={styles.container}>
+            <ModernCard style={styles.searchContainer}>
+                <TextInput
+                    style={styles.searchInput}
+                    placeholder='Search Damages...'
+                    placeholderTextColor={COLORS.neutral.medium}
+                    value={searchTerm}
+                    onChangeText={setSearchTerm}
+                />
+            </ModernCard>
+            
+            <View style={styles.contentContainer}>
+                <ActivityIndicator visible={isLoading} />
+                {filteredDamages.length > 0 ? (
                     <FlatList
                         data={filteredDamages}
                         keyExtractor={(item) => item.id.toString()}
                         renderItem={renderDamageItem}
                         contentContainerStyle={styles.listContainer}
+                        showsVerticalScrollIndicator={false}
                     />
                 ) : (
-                    <View style={styles.msg}>
-                        <Text style={{ color: 'white', fontSize: 14, textAlign: 'center' }}>No Record Available</Text>
-                    </View>
-                )
-
-            )}
+                    <ModernCard style={styles.emptyCard}>
+                        <Text style={styles.emptyText}>No Damage Reports Available</Text>
+                    </ModernCard>
+                )}
+            </View>
 
             <Modal
                 transparent={true}
@@ -230,38 +239,45 @@ const Damages = ({ changeMode, onSelectDamage, selectedDamage }) => {
                 <TouchableOpacity
                     style={styles.modalOverlay}
                     onPress={handleMenuClose}>
-                    <View style={styles.menu}>
-                        <TouchableOpacity style={styles.menuItem} onPress={handleView}>
-                            <Text style={styles.menuItemText}>View</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.menuItem} onPress={handleEdit}>
-                            <Text style={styles.menuItemText}>Edit</Text>
-                        </TouchableOpacity>
+                    <ModernCard style={styles.menu}>
+                        <ModernButton
+                            title="View Details"
+                            onPress={handleView}
+                            variant="primary"
+                            size="medium"
+                        />
+                        <ModernButton
+                            title="Edit"
+                            onPress={handleEdit}
+                            variant="secondary"
+                            size="medium"
+                        />
                         {isAdmin && (
                             <>
-                                <TouchableOpacity
-                                    style={styles.menuItem}
-                                    onPress={() => handleUpdateStatus('Reviewed')}>
-                                    <Text style={styles.menuItemText}>
-                                        Mark Review
-                                    </Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={styles.menuItem}
-                                    onPress={() => handleUpdateStatus('Resolved')}>
-                                    <Text style={styles.menuItemText}>
-                                        Mark Resolved
-                                    </Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={styles.menuItem} onPress={confirmDelete}>
-                                    <Text style={styles.menuItemText}>Delete</Text>
-                                </TouchableOpacity>
+                                <ModernButton
+                                    title="Mark Reviewed"
+                                    onPress={() => handleUpdateStatus('Reviewed')}
+                                    variant="success"
+                                    size="medium"
+                                />
+                                <ModernButton
+                                    title="Mark Resolved"
+                                    onPress={() => handleUpdateStatus('Resolved')}
+                                    variant="accent"
+                                    size="medium"
+                                />
+                                <ModernButton
+                                    title="Delete"
+                                    onPress={confirmDelete}
+                                    variant="danger"
+                                    size="medium"
+                                />
                             </>
                         )}
-                    </View>
+                    </ModernCard>
                 </TouchableOpacity>
             </Modal>
-        </SafeAreaView>
+        </View>
     )
 }
 
@@ -270,115 +286,93 @@ export default Damages
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 10,
+        padding: 16,
     },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: '500',
-        color: 'white',
-    },
-    addButton: {
-        backgroundColor: '#007AFF',
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 5,
-    },
-    addButtonText: {
-        color: 'white',
-        fontSize: 16,
-    },
-    msg: {
-        backgroundColor: 'rgba(255,255,255,0.5)',
-        padding: 10,
-        borderRadius: 5,
-        borderColor: 'white',
-        borderWidth: 0.5,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 10,
+    searchContainer: {
+        marginBottom: 16,
+        padding: 0,
     },
     searchInput: {
-        backgroundColor: 'rgba(255,255,255,0.2)',
-        padding: 10,
-        borderRadius: 5,
-        color: 'white',
-        marginBottom: 10,
+        paddingHorizontal: 15,
+        paddingVertical: 12,
+        fontSize: 16,
+        color: COLORS.neutral.dark,
+    },
+    contentContainer: {
+        flex: 1,
     },
     listContainer: {
         paddingBottom: 20,
     },
+    emptyCard: {
+        alignItems: 'center',
+        paddingVertical: 32,
+    },
+    emptyText: {
+        fontSize: 16,
+        color: COLORS.neutral.medium,
+        fontWeight: '500',
+    },
     itemContainer: {
-        backgroundColor: 'rgba(255,255,255,0.5)',
-        padding: 10,
-        borderRadius: 5,
-        borderColor: 'white',
-        borderWidth: 0.5,
+        marginBottom: 12,
+        position: 'relative',
+    },
+    itemHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 10,
+        marginBottom: 12,
+    },
+    rentCode: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: COLORS.neutral.dark,
     },
     itemDetails: {
+        marginBottom: 8,
+    },
+    detailRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        paddingVertical: 4,
+    },
+    label: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: COLORS.neutral.medium,
         flex: 1,
     },
-    itemText: {
-        color: 'black',
+    value: {
         fontSize: 14,
+        fontWeight: '500',
+        color: COLORS.neutral.dark,
+        flex: 2,
+        textAlign: 'right',
     },
     ellipsisButton: {
-        padding: 10,
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        padding: 8,
+        borderRadius: 20,
+        backgroundColor: 'rgba(0,0,0,0.1)',
     },
     ellipsisText: {
-        color: 'white',
-        fontSize: 24,
+        color: COLORS.neutral.dark,
+        fontSize: 16,
+        fontWeight: 'bold',
     },
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'center',
         alignItems: 'center',
+        padding: 20,
     },
     menu: {
-        backgroundColor: 'white',
-        borderRadius: 5,
-        padding: 10,
-        width: 200,
-    },
-    menuItem: {
-        paddingVertical: 10,
-    },
-    menuItemText: {
-        fontSize: 16,
-        color: 'black',
-    },
-    statusTag: {
-        display: 'flex',
-        flexDirection: 'row',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 4,
-        alignSelf: 'flex-start',
-        marginTop: 5,
-    },
-    pending: {
-        backgroundColor: 'orange',
-    },
-    reviewed: {
-        backgroundColor: 'green',
-    },
-    resolved: {
-        backgroundColor: 'blue',
-    },
-    statusText: {
-        color: 'white',
-        fontSize: 12,
-        fontWeight: 'bold',
+        width: '80%',
+        maxWidth: 300,
+        gap: 8,
     },
 })

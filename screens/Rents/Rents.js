@@ -1,26 +1,27 @@
 import React, { useState, useMemo } from 'react'
 import {
-    StyleSheet,
-    ImageBackground,
     View,
-    SafeAreaView,
     Text,
-    ActivityIndicator,
     FlatList,
     TextInput,
     TouchableOpacity,
     Modal,
-    Alert
+    Alert,
+    StyleSheet
 } from 'react-native'
-import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { useDispatch } from 'react-redux'
 import { useRouter } from 'expo-router'
 import moment from 'moment'
 
-import { images } from '@/constants'
+import { COLORS } from '@/constants'
 import { useGetRentsQuery, useDeleteRentMutation, useUpdateRentMutation } from '@/apis/rentApi'
 import useAuth from '@/hooks/useAuth'
 import { setSpinner } from '@/store/slices/spinnerSlice'
+import GradientBackground from '@/components/ui/GradientBackground'
+import ModernCard from '@/components/ui/ModernCard'
+import StatusBadge from '@/components/ui/StatusBadge'
+import ModernButton from '@/components/ui/Buttons/ModernButton'
+import ActivityIndicator from '@/components/ActivityIndicator'
 
 const Rents = () => {
     const [selectedRent, setSelectedRent] = useState(null)
@@ -173,211 +174,227 @@ const Rents = () => {
     }
 
     const renderRentItem = ({ item }) => (
-        <View style={styles.itemContainer}>
+        <ModernCard style={styles.itemContainer}>
+            <View style={styles.itemHeader}>
+                <Text style={styles.bookingCode}>{item.bookingcode}</Text>
+                <StatusBadge status={item.status} size="small" />
+            </View>
+            
             <View style={styles.itemDetails}>
-                <Text style={styles.itemText}>
-                    <Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>Booking Code:</Text> {item.bookingcode}
-                </Text>
-                <Text style={styles.itemText}>
-                    <Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>Rent Date:</Text> {moment(item.startdate).format('DD MMM YYYY')}
-                </Text>
-                <Text style={styles.itemText}>
-                    <Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>Ends On:</Text> {moment(item.enddate).format('DD MMM YYYY')}
-                </Text>
-                <View style={{ display: 'flex', flexDirection: 'row', gap: 10 }}>
-                    <Text style={styles.itemText}>
-                        <Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>Status:</Text>
-                    </Text>
-                    <View style={[styles.statusTag, getStatusStyle(item.status)]}>
-                        <Text style={styles.statusText}>
-                            {item.status}
-                        </Text>
-                    </View>
+                <View style={styles.detailRow}>
+                    <Text style={styles.label}>Start Date</Text>
+                    <Text style={styles.value}>{moment(item.startdate).format('DD MMM YYYY')}</Text>
                 </View>
-                {!isAdmin && <View style={styles.itemText}>
-                    <TouchableOpacity
-                        style={styles.addButton}
+                <View style={styles.detailRow}>
+                    <Text style={styles.label}>End Date</Text>
+                    <Text style={styles.value}>{moment(item.enddate).format('DD MMM YYYY')}</Text>
+                </View>
+            </View>
+            
+            <View style={styles.itemActions}>
+                {!isAdmin && (
+                    <ModernButton
+                        title="Report Damage"
                         onPress={() => router.push({
                             pathname: '/(auths)/new-damage',
                             params: { rent: item?.id }
-                        })}>
-                        <Text style={styles.addButtonText}>Report Damage</Text>
-                    </TouchableOpacity>
-                </View>}
+                        })}
+                        variant="warning"
+                        size="small"
+                    />
+                )}
             </View>
+            
             <TouchableOpacity
                 style={styles.ellipsisButton}
                 onPress={() => handleMenuToggle(item)}>
-                <Text style={styles.ellipsisText}>⋮</Text>
+                <Text style={styles.ellipsisText}>•••</Text>
             </TouchableOpacity>
-        </View>
+        </ModernCard>
     )
 
     return (
-        <GestureHandlerRootView style={{ flex: 1 }}>
-            <ImageBackground
-                source={images.screen}
-                blurRadius={30}
-                resizeMode='cover'
-                style={styles.background}>
-                <SafeAreaView style={styles.container}>
+        <GradientBackground colors={COLORS.background.light}>
+            <View style={styles.container}>
+                <ModernCard style={styles.searchContainer}>
                     <TextInput
                         style={styles.searchInput}
                         placeholder='Search Rents...'
-                        placeholderTextColor='#ccc'
+                        placeholderTextColor={COLORS.neutral.medium}
                         value={searchTerm}
                         onChangeText={setSearchTerm}
                     />
-                    {isLoading ? (
-                        <ActivityIndicator size='large' color='blue' />
+                </ModernCard>
+                
+                <View style={styles.contentContainer}>
+                    <ActivityIndicator visible={isLoading} />
+                    {filteredRents.length > 0 ? (
+                        <FlatList
+                            data={filteredRents}
+                            keyExtractor={(item) => item.id.toString()}
+                            renderItem={renderRentItem}
+                            contentContainerStyle={styles.listContainer}
+                            showsVerticalScrollIndicator={false}
+                        />
                     ) : (
-                        filteredRents.length > 0 ? (
-                            <FlatList
-                                data={filteredRents}
-                                keyExtractor={(item) => item.id.toString()}
-                                renderItem={renderRentItem}
-                                contentContainerStyle={styles.listContainer}
-                            />
-                        ) : (
-                            <View style={styles.msg}>
-                                <Text style={{ color: 'white', fontSize: 14, textAlign: 'center' }}>No Record Available</Text>
-                            </View>
-                        )
-
+                        <ModernCard style={styles.emptyCard}>
+                            <Text style={styles.emptyText}>No Rentals Available</Text>
+                        </ModernCard>
                     )}
+                </View>
 
-                    <Modal
-                        transparent={true}
-                        animationType='fade'
-                        visible={menuVisible}
-                        onRequestClose={handleMenuClose}>
-                        <TouchableOpacity
-                            style={styles.modalOverlay}
-                            onPress={handleMenuClose}>
-                            <View style={styles.menu}>
-                                <TouchableOpacity style={styles.menuItem} onPress={handleView}>
-                                    <Text style={styles.menuItemText}>View</Text>
-                                </TouchableOpacity>
-                                {user?.roles.includes('Admin') &&
-                                    (
-                                        <>
-                                            <TouchableOpacity
-                                                style={styles.menuItem}
-                                                onPress={() => handleUdpateStatus('Active')}>
-                                                <Text style={styles.menuItemText}>
-                                                    Mark Active
-                                                </Text>
-                                            </TouchableOpacity>
-                                            <TouchableOpacity
-                                                style={styles.menuItem}
-                                                onPress={() => handleUdpateStatus('Completed')}>
-                                                <Text style={styles.menuItemText}>
-                                                    Mark Completed
-                                                </Text>
-                                            </TouchableOpacity>
-                                            <TouchableOpacity
-                                                style={styles.menuItem}
-                                                onPress={() => handleUdpateStatus('Cancelled')}>
-                                                <Text style={styles.menuItemText}>
-                                                    Cancel
-                                                </Text>
-                                            </TouchableOpacity>
-                                            <TouchableOpacity style={styles.menuItem} onPress={confirmDelete}>
-                                                <Text style={styles.menuItemText}>Delete</Text>
-                                            </TouchableOpacity>
-                                        </>
-
-                                    )
-                                }
-                            </View>
-                        </TouchableOpacity>
-                    </Modal>
-                </SafeAreaView>
-            </ImageBackground>
-        </GestureHandlerRootView>
+                <Modal
+                    transparent={true}
+                    animationType='fade'
+                    visible={menuVisible}
+                    onRequestClose={handleMenuClose}>
+                    <TouchableOpacity
+                        style={styles.modalOverlay}
+                        onPress={handleMenuClose}>
+                        <ModernCard style={styles.menu}>
+                            <ModernButton
+                                title="View Details"
+                                onPress={handleView}
+                                variant="primary"
+                                size="medium"
+                            />
+                            {user?.roles.includes('Admin') && (
+                                <>
+                                    <ModernButton
+                                        title="Mark Active"
+                                        onPress={() => handleUdpateStatus('Active')}
+                                        variant="success"
+                                        size="medium"
+                                    />
+                                    <ModernButton
+                                        title="Mark Completed"
+                                        onPress={() => handleUdpateStatus('Completed')}
+                                        variant="accent"
+                                        size="medium"
+                                    />
+                                    <ModernButton
+                                        title="Cancel Rental"
+                                        onPress={() => handleUdpateStatus('Cancelled')}
+                                        variant="warning"
+                                        size="medium"
+                                    />
+                                    <ModernButton
+                                        title="Delete"
+                                        onPress={confirmDelete}
+                                        variant="danger"
+                                        size="medium"
+                                    />
+                                </>
+                            )}
+                        </ModernCard>
+                    </TouchableOpacity>
+                </Modal>
+            </View>
+        </GradientBackground>
     )
 }
 
 export default Rents
 
 const styles = StyleSheet.create({
-    background: {
-        flex: 1,
-    },
     container: {
         flex: 1,
-        padding: 10,
+        padding: 16,
     },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: '500',
-        color: 'white',
-    },
-    addButton: {
-        backgroundColor: 'rgba(255, 0, 0, 0.7)',
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 5,
-        marginVertical: 4
-    },
-    addButtonText: {
-        color: 'white',
-        fontSize: 16,
-        textAlign: 'center'
+    searchContainer: {
+        marginBottom: 16,
+        padding: 0,
     },
     searchInput: {
-        backgroundColor: 'rgba(255,255,255,0.2)',
-        padding: 10,
-        borderRadius: 5,
-        color: 'white',
-        marginBottom: 10,
+        paddingHorizontal: 15,
+        paddingVertical: 12,
+        fontSize: 16,
+        color: COLORS.neutral.dark,
+    },
+    contentContainer: {
+        flex: 1,
     },
     listContainer: {
         paddingBottom: 20,
     },
+    emptyCard: {
+        alignItems: 'center',
+        paddingVertical: 32,
+    },
+    emptyText: {
+        fontSize: 16,
+        color: COLORS.neutral.medium,
+        fontSize: 16,
+        fontWeight: '500',
+    },
     itemContainer: {
-        backgroundColor: 'rgba(255,255,255,0.5)',
-        padding: 10,
-        borderRadius: 5,
-        borderColor: 'white',
-        borderWidth: 0.5,
+        marginBottom: 12,
+        position: 'relative',
+    },
+    itemHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 10,
+        marginBottom: 12,
+    },
+    bookingCode: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: COLORS.neutral.dark,
     },
     itemDetails: {
-        flex: 1,
+        marginBottom: 12,
     },
-    msg: {
-        backgroundColor: 'rgba(255,255,255,0.5)',
-        padding: 10,
-        borderRadius: 5,
-        borderColor: 'white',
-        borderWidth: 0.5,
+    detailRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 10,
+        alignItems: 'flex-start',
+        paddingVertical: 4,
     },
-    itemText: {
-        color: 'black',
+    label: {
         fontSize: 14,
-        marginVertical: 5
+        fontWeight: '600',
+        color: COLORS.neutral.medium,
+        flex: 1,
+    },
+    value: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: COLORS.neutral.dark,
+        flex: 2,
+        textAlign: 'right',
+    },
+    itemActions: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
     },
     ellipsisButton: {
-        padding: 10,
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        padding: 8,
+        borderRadius: 20,
+        backgroundColor: 'rgba(0,0,0,0.1)',
     },
     ellipsisText: {
-        color: 'white',
-        fontSize: 24,
+        color: COLORS.neutral.dark,
+        fontSize: 16,
+        fontWeight: 'bold',
     },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    menu: {
+        width: '80%',
+        maxWidth: 300,
+        gap: 8,
+    },
+})
+
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.5)',
