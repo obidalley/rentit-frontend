@@ -1,10 +1,8 @@
 import React, { useState, useMemo } from 'react'
 import {
     View,
-    SafeAreaView,
     StyleSheet,
     Text,
-    ActivityIndicator,
     FlatList,
     TextInput,
     TouchableOpacity,
@@ -17,6 +15,12 @@ import { useRouter } from 'expo-router'
 
 import { useGetDriversQuery, useDeleteDriverMutation, useUpdateDriverMutation } from '@/apis/driversApi'
 import { setSpinner } from '@/store/slices/spinnerSlice'
+
+import { COLORS } from '@/constants'
+import ModernCard from '@/components/ui/ModernCard'
+import ModernButton from '@/components/ui/Buttons/ModernButton'
+import StatusBadge from '@/components/ui/StatusBadge'
+import ActivityIndicator from '@/components/ActivityIndicator'
 
 const Drivers = ({ changeMode, onSelectDriver, selectedDriver }) => {
     const dispatch = useDispatch()
@@ -149,73 +153,77 @@ const Drivers = ({ changeMode, onSelectDriver, selectedDriver }) => {
     }
 
     const renderDriverItem = ({ item }) => (
-        <View style={styles.itemContainer}>
-            <View style={styles.itemDetails}>
-                <View style={styles.itemDetails}>
-                    <Text style={styles.itemText}>
-                        <Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>Name:</Text> {`${item.name?.firstname} ${item.name?.othername} ${item.name?.surname}`}
-                    </Text>
-                    <Text style={styles.itemText}>
-                        <Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>Date of Birth:</Text> {moment(item.dob).format('DD MMM YYYY')}
-                    </Text>
-                    <Text style={styles.itemText}>
-                        <Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>Gender:</Text> {item.gender}
-                    </Text>
-                    <Text style={styles.itemText}>
-                        <Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>Price Per Day:</Text> ₦{formatPrice(item.priceperday)}
-                    </Text>
-                </View>
-                <Text style={styles.itemText}>
-                    <Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>Availability:</Text>
+        <ModernCard style={styles.itemContainer}>
+            <View style={styles.itemHeader}>
+                <Text style={styles.driverName}>
+                    {`${item.name?.firstname} ${item.name?.othername} ${item.name?.surname}`}
                 </Text>
-                <View
-                    style={[
-                        styles.availabilityTag,
-                        item.availability ? styles.available : styles.unavailable
-                    ]}>
-                    <Text style={styles.availabilityText}>
-                        {item.availability ? 'Available' : 'Unavailable'}
-                    </Text>
+                <StatusBadge 
+                    status={item.availability ? 'Available' : 'Unavailable'} 
+                    size="small" 
+                />
+            </View>
+            
+            <View style={styles.itemDetails}>
+                <View style={styles.detailRow}>
+                    <Text style={styles.label}>Date of Birth</Text>
+                    <Text style={styles.value}>{moment(item.dob).format('DD MMM YYYY')}</Text>
+                </View>
+                <View style={styles.detailRow}>
+                    <Text style={styles.label}>Gender</Text>
+                    <Text style={styles.value}>{item.gender}</Text>
+                </View>
+                <View style={styles.detailRow}>
+                    <Text style={styles.label}>Price Per Day</Text>
+                    <Text style={styles.priceValue}>₦{formatPrice(item.priceperday)}</Text>
                 </View>
             </View>
+            
             <TouchableOpacity
                 style={styles.ellipsisButton}
                 onPress={() => handleMenuToggle(item)}>
-                <Text style={styles.ellipsisText}>⋮</Text>
+                <Text style={styles.ellipsisText}>•••</Text>
             </TouchableOpacity>
-        </View>
+        </ModernCard>
     )
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={() => changeMode('New')}>
-                    <Text style={styles.addButtonText}>Add</Text>
-                </TouchableOpacity>
+                <ModernButton
+                    title="Add Driver"
+                    onPress={() => changeMode('New')}
+                    variant="primary"
+                    size="medium"
+                />
             </View>
-            <TextInput
-                style={styles.searchInput}
-                placeholder='Search Drivers...'
-                placeholderTextColor='#ccc'
-                value={searchTerm}
-                onChangeText={setSearchTerm}
-            />
-            {isLoading ? (
-                <ActivityIndicator size='large' color='#fff' />
-            ) : (
-                filteredDrivers?.length > 0 ? (<FlatList
-                    data={filteredDrivers}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={renderDriverItem}
-                    contentContainerStyle={styles.listContainer}
-                />) : (
-                    <View style={styles.msg}>
-                        <Text style={{ color: 'white', fontSize: 14, textAlign: 'center' }}>No Record Available</Text>
-                    </View>
-                )
-            )}
+            
+            <ModernCard style={styles.searchContainer}>
+                <TextInput
+                    style={styles.searchInput}
+                    placeholder='Search Drivers...'
+                    placeholderTextColor={COLORS.neutral.medium}
+                    value={searchTerm}
+                    onChangeText={setSearchTerm}
+                />
+            </ModernCard>
+            
+            <View style={styles.contentContainer}>
+                <ActivityIndicator visible={isLoading} />
+                {filteredDrivers?.length > 0 ? (
+                    <FlatList
+                        data={filteredDrivers}
+                        keyExtractor={(item) => item.id.toString()}
+                        renderItem={renderDriverItem}
+                        contentContainerStyle={styles.listContainer}
+                        showsVerticalScrollIndicator={false}
+                    />
+                ) : (
+                    <ModernCard style={styles.emptyCard}>
+                        <Text style={styles.emptyText}>No Drivers Available</Text>
+                    </ModernCard>
+                )}
+            </View>
 
             <Modal
                 transparent={true}
@@ -225,27 +233,35 @@ const Drivers = ({ changeMode, onSelectDriver, selectedDriver }) => {
                 <TouchableOpacity
                     style={styles.modalOverlay}
                     onPress={handleMenuClose}>
-                    <View style={styles.menu}>
-                        <TouchableOpacity style={styles.menuItem} onPress={handleView}>
-                            <Text style={styles.menuItemText}>View</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.menuItem} onPress={handleEdit}>
-                            <Text style={styles.menuItemText}>Edit</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.menuItem} onPress={confirmDelete}>
-                            <Text style={styles.menuItemText}>Delete</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.menuItem}
-                            onPress={handleToggleAvailability}>
-                            <Text style={styles.menuItemText}>
-                                {selectedDriver?.availability ? 'Make Unavailable' : 'Make Available'}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
+                    <ModernCard style={styles.menu}>
+                        <ModernButton
+                            title="View Details"
+                            onPress={handleView}
+                            variant="primary"
+                            size="medium"
+                        />
+                        <ModernButton
+                            title="Edit"
+                            onPress={handleEdit}
+                            variant="secondary"
+                            size="medium"
+                        />
+                        <ModernButton
+                            title={selectedDriver?.availability ? 'Make Unavailable' : 'Make Available'}
+                            onPress={handleToggleAvailability}
+                            variant="accent"
+                            size="medium"
+                        />
+                        <ModernButton
+                            title="Delete"
+                            onPress={confirmDelete}
+                            variant="danger"
+                            size="medium"
+                        />
+                    </ModernCard>
                 </TouchableOpacity>
             </Modal>
-        </SafeAreaView>
+        </View>
     )
 }
 
@@ -254,110 +270,106 @@ export default Drivers
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 10,
+        padding: 16,
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'flex-end',
         alignItems: 'center',
-        marginBottom: 10,
+        marginBottom: 16,
     },
-    title: {
-        fontSize: 24,
-        fontWeight: '500',
-        color: 'white',
-    },
-    addButton: {
-        backgroundColor: '#007AFF',
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 5,
-    },
-    addButtonText: {
-        color: 'white',
-        fontSize: 16,
+    searchContainer: {
+        marginBottom: 16,
+        padding: 0,
     },
     searchInput: {
-        backgroundColor: 'rgba(255,255,255,0.2)',
-        padding: 10,
-        borderRadius: 5,
-        color: 'white',
-        marginBottom: 10,
+        paddingHorizontal: 15,
+        paddingVertical: 12,
+        fontSize: 16,
+        color: COLORS.neutral.dark,
+    },
+    contentContainer: {
+        flex: 1,
     },
     listContainer: {
         paddingBottom: 20,
     },
-    msg: {
-        backgroundColor: 'rgba(255,255,255,0.5)',
-        padding: 10,
-        borderRadius: 5,
-        borderColor: 'white',
-        borderWidth: 0.5,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+    emptyCard: {
         alignItems: 'center',
-        marginBottom: 10,
+        paddingVertical: 32,
+    },
+    emptyText: {
+        fontSize: 16,
+        color: COLORS.neutral.medium,
+        fontWeight: '500',
     },
     itemContainer: {
-        backgroundColor: 'rgba(255,255,255,0.5)',
-        padding: 10,
-        borderRadius: 5,
-        borderColor: 'white',
-        borderWidth: 0.5,
+        marginBottom: 12,
+        position: 'relative',
+    },
+    itemHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 10,
+        marginBottom: 12,
+    },
+    driverName: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: COLORS.neutral.dark,
     },
     itemDetails: {
+        marginBottom: 8,
+    },
+    detailRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        paddingVertical: 4,
+    },
+    label: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: COLORS.neutral.medium,
         flex: 1,
     },
-    itemText: {
-        color: 'black',
+    value: {
         fontSize: 14,
+        fontWeight: '500',
+        color: COLORS.neutral.dark,
+        flex: 2,
+        textAlign: 'right',
+    },
+    priceValue: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: COLORS.primary.solid,
+        flex: 2,
+        textAlign: 'right',
     },
     ellipsisButton: {
-        padding: 10,
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        padding: 8,
+        borderRadius: 20,
+        backgroundColor: 'rgba(0,0,0,0.1)',
     },
     ellipsisText: {
-        color: 'white',
-        fontSize: 24,
+        color: COLORS.neutral.dark,
+        fontSize: 16,
+        fontWeight: 'bold',
     },
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'center',
         alignItems: 'center',
+        padding: 20,
     },
     menu: {
-        backgroundColor: 'white',
-        borderRadius: 5,
-        padding: 10,
-        width: 200,
-    },
-    menuItem: {
-        paddingVertical: 10,
-    },
-    menuItemText: {
-        fontSize: 16,
-        color: 'black',
-    },
-    availabilityTag: {
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 4,
-        alignSelf: 'flex-start',
-        marginTop: 5,
-    },
-    available: {
-        backgroundColor: 'green',
-    },
-    unavailable: {
-        backgroundColor: 'red',
-    },
-    availabilityText: {
-        color: 'white',
-        fontSize: 12,
-        fontWeight: 'bold',
+        width: '80%',
+        maxWidth: 300,
+        gap: 8,
     },
 })

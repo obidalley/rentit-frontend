@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import {
-    StyleSheet,
-    ImageBackground,
+    StyleSheet
 } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
-import { images } from '@/constants'
+import { COLORS } from '@/constants'
 
+import GradientBackground from '@/components/ui/GradientBackground'
 import Drivers from './Drivers'
 import NewDriver from './NewDriver'
 import EditDriver from './EditDriver'
@@ -16,11 +16,7 @@ const DriversListing = () => {
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
-            <ImageBackground
-                source={images.screen}
-                blurRadius={30}
-                resizeMode='cover'
-                style={styles.background}>
+            <GradientBackground colors={COLORS.background.primary}>
                 {mode === 'View' && (
                     <Drivers
                         selectedDriver={selectedDriver}
@@ -30,7 +26,7 @@ const DriversListing = () => {
                 )}
                 {mode === 'New' && <NewDriver changeMode={(mode) => setMode(mode)} />}
                 {mode === 'Edit' && <EditDriver selectedDriver={selectedDriver} changeMode={(mode) => setMode(mode)} />}
-            </ImageBackground>
+            </GradientBackground>
         </GestureHandlerRootView>
     )
 }
@@ -38,9 +34,6 @@ const DriversListing = () => {
 export default DriversListing
 
 const styles = StyleSheet.create({
-    background: {
-        flex: 1,
-    },
     container: {
         flex: 1,
         padding: 10,

@@ -1,11 +1,8 @@
 import React, { useState, useMemo } from 'react'
 import {
     StyleSheet,
-    ImageBackground,
     View,
-    SafeAreaView,
     Text,
-    ActivityIndicator,
     FlatList,
     TextInput,
     TouchableOpacity,
@@ -17,9 +14,14 @@ import { useDispatch } from 'react-redux'
 import { useRouter } from 'expo-router'
 import moment from 'moment'
 
-import { images } from '@/constants'
+import { COLORS } from '@/constants'
 import { useGetCustomersQuery, useDeleteCustomerMutation } from '@/apis/customersApi'
 import { setSpinner } from '@/store/slices/spinnerSlice'
+
+import GradientBackground from '@/components/ui/GradientBackground'
+import ModernCard from '@/components/ui/ModernCard'
+import ModernButton from '@/components/ui/Buttons/ModernButton'
+import ActivityIndicator from '@/components/ActivityIndicator'
 
 const Custormers = () => {
     const [selectedCustomer, setSelectedCustomer] = useState(null)
@@ -117,58 +119,67 @@ const Custormers = () => {
     }
 
     const renderCustomerItem = ({ item }) => (
-        <View style={styles.itemContainer}>
-            <View style={styles.itemDetails}>
-                <Text style={styles.itemText}>
-                    <Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>Name:</Text> {`${item.name?.firstname} ${item.name?.othername} ${item.name?.surname}`}
-                </Text>
-                <Text style={styles.itemText}>
-                    <Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>Date of Birth:</Text> {moment(item.dob).format('DD MMM YYYY')}
-                </Text>
-                <Text style={styles.itemText}>
-                    <Text style={{ fontWeight: 'bold', fontStyle: 'italic' }}>Gender:</Text> {item.gender}
+        <ModernCard style={styles.itemContainer}>
+            <View style={styles.itemHeader}>
+                <Text style={styles.customerName}>
+                    {`${item.name?.firstname} ${item.name?.othername} ${item.name?.surname}`}
                 </Text>
             </View>
+            
+            <View style={styles.itemDetails}>
+                <View style={styles.detailRow}>
+                    <Text style={styles.label}>Date of Birth</Text>
+                    <Text style={styles.value}>{moment(item.dob).format('DD MMM YYYY')}</Text>
+                </View>
+                <View style={styles.detailRow}>
+                    <Text style={styles.label}>Gender</Text>
+                    <Text style={styles.value}>{item.gender}</Text>
+                </View>
+                <View style={styles.detailRow}>
+                    <Text style={styles.label}>Phone</Text>
+                    <Text style={styles.value}>{item.contact?.phone}</Text>
+                </View>
+            </View>
+            
             <TouchableOpacity
                 style={styles.ellipsisButton}
                 onPress={() => handleMenuToggle(item)}>
-                <Text style={styles.ellipsisText}>⋮</Text>
+                <Text style={styles.ellipsisText}>•••</Text>
             </TouchableOpacity>
-        </View>
+        </ModernCard>
     )
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
-            <ImageBackground
-                source={images.screen}
-                blurRadius={30}
-                resizeMode='cover'
-                style={styles.background}>
-                <SafeAreaView style={styles.container}>
-                    <TextInput
-                        style={styles.searchInput}
+            <GradientBackground colors={COLORS.background.light}>
+                <View style={styles.container}>
+                    <ModernCard style={styles.searchContainer}>
+                        <TextInput
+                            style={styles.searchInput}
                         placeholder='Search Customers...'
-                        placeholderTextColor='#ccc'
+                            placeholderTextColor={COLORS.neutral.medium}
                         value={searchTerm}
                         onChangeText={setSearchTerm}
-                    />
-                    {isLoading ? (
-                        <ActivityIndicator size='large' color='blue' />
-                    ) : (
-                        filteredCustomers.length > 0 ? (
+                        />
+                    </ModernCard>
+                    
+                    <View style={styles.contentContainer}>
+                        <ActivityIndicator visible={isLoading} />
+                        {filteredCustomers.length > 0 ? (
                             <FlatList
                                 data={filteredCustomers}
                                 keyExtractor={(item) => item.id.toString()}
                                 renderItem={renderCustomerItem}
                                 contentContainerStyle={styles.listContainer}
+                                showsVerticalScrollIndicator={false}
                             />
                         ) : (
-                            <View style={styles.msg}>
-                                <Text style={{ color: 'white', fontSize: 14, textAlign: 'center' }}>No Record Available</Text>
-                            </View>
+                            <ModernCard style={styles.emptyCard}>
+                                <Text style={styles.emptyText}>No Customers Available</Text>
+                            </ModernCard>
                         )
-
-                    )}
+                    }
+                    </View>
 
                     <Modal
                         transparent={true}
@@ -178,18 +189,24 @@ const Custormers = () => {
                         <TouchableOpacity
                             style={styles.modalOverlay}
                             onPress={handleMenuClose}>
-                            <View style={styles.menu}>
-                                <TouchableOpacity style={styles.menuItem} onPress={handleView}>
-                                    <Text style={styles.menuItemText}>View</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={styles.menuItem} onPress={confirmDelete}>
-                                    <Text style={styles.menuItemText}>Delete</Text>
-                                </TouchableOpacity>
-                            </View>
+                            <ModernCard style={styles.menu}>
+                                <ModernButton
+                                    title="View Details"
+                                    onPress={handleView}
+                                    variant="primary"
+                                    size="medium"
+                                />
+                                <ModernButton
+                                    title="Delete"
+                                    onPress={confirmDelete}
+                                    variant="danger"
+                                    size="medium"
+                                />
+                            </ModernCard>
                         </TouchableOpacity>
                     </Modal>
-                </SafeAreaView>
-            </ImageBackground>
+                </View>
+            </GradientBackground>
         </GestureHandlerRootView>
     )
 }
@@ -197,115 +214,95 @@ const Custormers = () => {
 export default Custormers
 
 const styles = StyleSheet.create({
-    background: {
-        flex: 1,
-    },
     container: {
         flex: 1,
-        padding: 10,
+        padding: 16,
     },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: '500',
-        color: 'white',
-    },
-    addButton: {
-        backgroundColor: '#007AFF',
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 5,
-    },
-    addButtonText: {
-        color: 'white',
-        fontSize: 16,
+    searchContainer: {
+        marginBottom: 16,
+        padding: 0,
     },
     searchInput: {
-        backgroundColor: 'rgba(255,255,255,0.2)',
-        padding: 10,
-        borderRadius: 5,
-        color: 'white',
-        marginBottom: 10,
+        paddingHorizontal: 15,
+        paddingVertical: 12,
+        fontSize: 16,
+        color: COLORS.neutral.dark,
     },
-    msg: {
-        backgroundColor: 'rgba(255,255,255,0.5)',
-        padding: 10,
-        borderRadius: 5,
-        borderColor: 'white',
-        borderWidth: 0.5,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 10,
+    contentContainer: {
+        flex: 1,
     },
     listContainer: {
         paddingBottom: 20,
     },
+    emptyCard: {
+        alignItems: 'center',
+        paddingVertical: 32,
+    },
+    emptyText: {
+        fontSize: 16,
+        color: COLORS.neutral.medium,
+        fontWeight: '500',
+    },
     itemContainer: {
-        backgroundColor: 'rgba(255,255,255,0.5)',
-        padding: 10,
-        borderRadius: 5,
-        borderColor: 'white',
-        borderWidth: 0.5,
+        marginBottom: 12,
+        position: 'relative',
+    },
+    itemHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 10,
+        marginBottom: 12,
+    },
+    customerName: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: COLORS.neutral.dark,
     },
     itemDetails: {
+        marginBottom: 8,
+    },
+    detailRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        paddingVertical: 4,
+    },
+    label: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: COLORS.neutral.medium,
         flex: 1,
     },
-    itemText: {
-        color: 'black',
+    value: {
         fontSize: 14,
+        fontWeight: '500',
+        color: COLORS.neutral.dark,
+        flex: 2,
+        textAlign: 'right',
     },
     ellipsisButton: {
-        padding: 10,
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        padding: 8,
+        borderRadius: 20,
+        backgroundColor: 'rgba(0,0,0,0.1)',
     },
     ellipsisText: {
-        color: 'white',
-        fontSize: 24,
+        color: COLORS.neutral.dark,
+        fontSize: 16,
+        fontWeight: 'bold',
     },
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'center',
         alignItems: 'center',
+        padding: 20,
     },
     menu: {
-        backgroundColor: 'white',
-        borderRadius: 5,
-        padding: 10,
-        width: 200,
-    },
-    menuItem: {
-        paddingVertical: 10,
-    },
-    menuItemText: {
-        fontSize: 16,
-        color: 'black',
-    },
-    availabilityTag: {
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 4,
-        alignSelf: 'flex-start',
-        marginTop: 5,
-    },
-    available: {
-        backgroundColor: 'green',
-    },
-    unavailable: {
-        backgroundColor: 'red',
-    },
-    availabilityText: {
-        color: 'white',
-        fontSize: 12,
-        fontWeight: 'bold',
+        width: '80%',
+        maxWidth: 300,
+        gap: 8,
     },
 })

@@ -4,8 +4,6 @@ import {
     Text,
     Alert,
     View,
-    TouchableOpacity,
-    SafeAreaView,
     ScrollView,
     Pressable
 } from 'react-native'
@@ -17,6 +15,10 @@ import moment from 'moment'
 import { useUpdateDriverMutation } from '@/apis/driversApi'
 import { setSpinner } from '@/store/slices/spinnerSlice'
 
+import { COLORS } from '@/constants'
+import GradientBackground from '@/components/ui/GradientBackground'
+import ModernCard from '@/components/ui/ModernCard'
+import ModernButton from '@/components/ui/Buttons/ModernButton'
 import { Form, FormField, Textarea, Datepicker, SubmitButton } from '@/components/forms'
 
 const validationSchema = Yup.object().shape({
@@ -33,6 +35,7 @@ const RadioButtonGroup = ({ name, options }) => {
     const { values, setFieldValue } = useFormikContext()
     return (
         <View style={styles.radioContainer}>
+            <Text style={styles.sectionLabel}>Gender</Text>
             {options.map((option) => {
                 const selected = values[name] === option.value
                 return (
@@ -111,16 +114,20 @@ const EditDriver = ({ selectedDriver, changeMode }) => {
     }
 
     return (
-        <SafeAreaView style={styles.container}>
-            <ScrollView>
+        <GradientBackground colors={COLORS.background.light}>
+            <View style={styles.container}>
                 <View style={styles.header}>
-                    <Text style={styles.tagline}>Edit Driver Details</Text>
-                    <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => changeMode('View')}>
-                        <Text style={styles.buttonText}>Back</Text>
-                    </TouchableOpacity>
+                    <Text style={styles.title}>Edit Driver Details</Text>
+                    <ModernButton
+                        title="Back"
+                        onPress={() => changeMode('View')}
+                        variant="outline"
+                        size="medium"
+                    />
                 </View>
+                
+                <ModernCard style={styles.formCard}>
+            <ScrollView>
                 <Form
                     initialValues={{
                         firstname: selectedDriver?.name?.firstname,
@@ -135,10 +142,11 @@ const EditDriver = ({ selectedDriver, changeMode }) => {
                     onSubmit={handleSubmit}
                     validationSchema={validationSchema}
                 >
-                    <FormField maxLength={255} name='firstname' placeholder='First Name' />
-                    <FormField maxLength={255} name='surname' placeholder='Surname' />
-                    <FormField maxLength={255} name='othername' placeholder='Other Name' />
-                    <Datepicker name='dob' placeholder='Date of Birth' />
+                        <Text style={styles.sectionTitle}>Personal Information</Text>
+                        <FormField maxLength={255} name='firstname' icon='account' placeholder='First Name' />
+                        <FormField maxLength={255} name='surname' icon='account' placeholder='Surname' />
+                        <FormField maxLength={255} name='othername' icon='account' placeholder='Other Name (Optional)' />
+                        <Datepicker name='dob' icon='calendar' placeholder='Date of Birth' />
                     <RadioButtonGroup
                         name='gender'
                         options={[
@@ -146,18 +154,25 @@ const EditDriver = ({ selectedDriver, changeMode }) => {
                             { label: 'Female', value: 'Female' }
                         ]}
                     />
+                        
+                        <Text style={styles.sectionTitle}>Professional Details</Text>
                     <FormField
                         keyboardType='numeric'
                         maxLength={8}
                         name='priceperday'
+                            icon='currency-usd'
                         placeholder='Price per day'
                     />
-                    <FormField keyboardType='numeric' name='phone' placeholder='Phone Number' />
-                    <Textarea name='address' placeholder='Contact address' />
-                    <SubmitButton title='Update' color='blueDark' />
+                        
+                        <Text style={styles.sectionTitle}>Contact Information</Text>
+                        <FormField keyboardType='numeric' name='phone' icon='phone' placeholder='Phone Number' />
+                        <Textarea name='address' icon='map-marker' placeholder='Contact address' />
+                        <SubmitButton title='Update Driver' />
                 </Form>
             </ScrollView>
-        </SafeAreaView>
+                </ModernCard>
+            </View>
+        </GradientBackground>
     )
 }
 
@@ -166,62 +181,67 @@ export default EditDriver
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 10,
-    },
-    tagline: {
-        color: 'white',
-        marginVertical: 10,
-        textAlign: 'center',
-        fontSize: 16,
+        padding: 16,
     },
     header: {
-        display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        borderBottomColor: 'white',
-        borderBottomWidth: 1,
-        paddingBottom: 10,
+        alignItems: 'center',
+        marginBottom: 16,
     },
-    button: {
-        backgroundColor: 'red',
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 5,
+    title: {
+        fontSize: 24,
+        fontWeight: '700',
+        color: COLORS.neutral.dark,
     },
-    buttonText: {
-        color: 'white',
+    formCard: {
+        flex: 1,
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: COLORS.neutral.dark,
+        marginTop: 16,
+        marginBottom: 8,
+    },
+    sectionLabel: {
         fontSize: 16,
+        fontWeight: '600',
+        color: COLORS.neutral.dark,
+        marginBottom: 8,
     },
     radioContainer: {
+        marginVertical: 10,
+    },
+    radioRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 10,
+        gap: 20,
     },
     radioOption: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginRight: 20,
     },
     radioCircle: {
         height: 20,
         width: 20,
         borderRadius: 10,
         borderWidth: 2,
-        borderColor: 'white',
+        borderColor: COLORS.primary.solid,
         alignItems: 'center',
         justifyContent: 'center',
     },
     radioSelected: {
-        borderColor: 'blue',
+        borderColor: COLORS.primary.solid,
     },
     radioInnerCircle: {
         height: 10,
         width: 10,
         borderRadius: 5,
-        backgroundColor: 'blue',
+        backgroundColor: COLORS.primary.solid,
     },
     radioLabel: {
-        color: 'white',
+        color: COLORS.neutral.dark,
         marginLeft: 8,
         fontSize: 16,
     },
